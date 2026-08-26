@@ -2,8 +2,8 @@ name: Update filtered Hiddify subscription
 
 on:
   schedule:
-    # GitHub cron uses UTC. Minute 17 avoids the busiest start-of-hour window.
-    - cron: "17 * * * *"
+    # GitHub cron uses UTC. Offset minutes avoid the busiest quarter-hour marks.
+    - cron: "7,22,37,52 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -31,7 +31,9 @@ jobs:
         env:
           SOURCE_URL: https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/top100.txt
           OUTPUT_FILE: subscription.txt
+          REALITY_OUTPUT_FILE: reality_tcp.txt
           MIN_CONFIGS: "5"
+          MIN_REALITY_CONFIGS: "1"
         run: python filter_subscription.py
 
       - name: Commit changed subscription
@@ -39,7 +41,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add subscription.txt
+          git add subscription.txt reality_tcp.txt
 
           if git diff --cached --quiet; then
             echo "Subscription has not changed"
