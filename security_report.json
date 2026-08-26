@@ -1,99 +1,166 @@
 {
   "diversity": {
     "best": {
-      "countries": 12,
-      "largest_country_group": 12,
+      "countries": 15,
+      "largest_country_group": 10,
       "limits": {
         "nodes": 50,
         "per_country": 12,
         "per_endpoint": 2,
-        "per_ip_network": 3
+        "per_ip_network": 3,
+        "per_operator_cluster": 2,
+        "per_reality_key": 3,
+        "per_user_id": 3
       },
       "selected": 50,
-      "skipped_country_cap": 2,
+      "skipped_country_cap": 0,
       "skipped_endpoint_cap": 0,
-      "skipped_network_cap": 17
+      "skipped_network_cap": 0,
+      "skipped_operator_cluster_cap": 21,
+      "skipped_reality_key_cap": 0,
+      "skipped_user_id_cap": 4
+    },
+    "durable": {
+      "countries": 0,
+      "largest_country_group": 0,
+      "limits": {
+        "nodes": 50,
+        "per_country": 12,
+        "per_endpoint": 2,
+        "per_ip_network": 3,
+        "per_operator_cluster": 3,
+        "per_reality_key": 4,
+        "per_user_id": 4
+      },
+      "selected": 0,
+      "skipped_country_cap": 0,
+      "skipped_endpoint_cap": 0,
+      "skipped_network_cap": 0,
+      "skipped_operator_cluster_cap": 0,
+      "skipped_reality_key_cap": 0,
+      "skipped_user_id_cap": 0
     },
     "stable": {
-      "countries": 12,
-      "largest_country_group": 15,
+      "countries": 22,
+      "largest_country_group": 26,
       "limits": {
         "nodes": 100,
         "per_country": 30,
         "per_endpoint": 3,
-        "per_ip_network": 5
+        "per_ip_network": 5,
+        "per_operator_cluster": 4,
+        "per_reality_key": 6,
+        "per_user_id": 6
       },
-      "selected": 56,
+      "selected": 100,
       "skipped_country_cap": 0,
-      "skipped_endpoint_cap": 0,
-      "skipped_network_cap": 10
+      "skipped_endpoint_cap": 11,
+      "skipped_network_cap": 0,
+      "skipped_operator_cluster_cap": 18,
+      "skipped_reality_key_cap": 9,
+      "skipped_user_id_cap": 0
     }
   },
   "filtering": {
     "duplicates": 0,
-    "reality_candidates": 176,
+    "reality_candidates": 459,
     "reality_rejected": {
-      "invalid_encryption": 13,
-      "missing_or_invalid_fingerprint": 59,
+      "invalid_encryption": 97,
+      "invalid_uuid": 1,
+      "missing_or_invalid_fingerprint": 85,
       "missing_or_invalid_server_name": 1,
-      "unsafe_option": 3
+      "unsafe_option": 13,
+      "unsupported_transport": 2
     },
-    "ru_label": 5,
+    "ru_label": 23,
     "safe_reality_excluded_from_tcp_vision": {
-      "unsupported_transport": 11,
-      "vision_required": 10
+      "unsupported_transport": 20,
+      "vision_required": 39
     }
   },
   "history": {
-    "bootstrap_fill": 0,
-    "current_fresh": 13,
-    "current_trusted": 66,
+    "bootstrap_fill": 100,
+    "cross_source_current": 5,
+    "current_fresh": 134,
+    "current_trusted": 67,
+    "durable_candidates": 0,
+    "durable_cross_source_hits_required": 2,
+    "durable_required_hits": 72,
+    "durable_window_runs": 96,
     "expired": 0,
-    "quarantined": 0,
-    "records": 91,
+    "history_version": 2,
+    "quarantined": 5,
+    "records": 218,
     "revived": 0,
-    "stable_candidates": 66
+    "stable_candidates": 0,
+    "stable_required_hits": 6,
+    "stable_selected_pool": 201,
+    "stable_window_runs": 8,
+    "window_complete_current": 0
   },
   "limitations": [
     "Availability tests and URI validation do not establish operator trust.",
     "Country filtering relies on the source label and is not a GeoIP guarantee.",
     "The all-protocols reserve file is not covered by strict REALITY validation.",
     "Quality tiers are upstream observations, not guarantees of future availability.",
-    "History contains only identity hashes and counters; it cannot retain a disappeared URI."
+    "History contains only identity hashes and counters; it cannot retain a disappeared URI.",
+    "Remote HTTP tests originate outside the user's ISP and cannot prove local reachability.",
+    "Cross-source presence is independent publication evidence, not proof of independent operators."
   ],
+  "merge": {
+    "cross_source_identities": 154,
+    "duplicates_collapsed": 154,
+    "unique_connection_identities": 987
+  },
   "outputs": {
-    "all_protocols_without_ru": 496,
-    "history_stable": 56,
+    "all_protocols_without_ru": 1063,
+    "history_durable_24h": 0,
+    "history_stable": 100,
     "ranked_best": 50,
-    "safe_reality_expanded": 100,
-    "safe_reality_tcp_vision": 79
+    "safe_reality_expanded": 260,
+    "safe_reality_tcp_vision": 201
   },
   "ranking": {
     "matched_strict_candidates": {
-      "fast": 65,
-      "history_trusted": 66,
-      "secure": 79,
-      "top100": 23
+      "cross_source": 5,
+      "fast": 64,
+      "history_trusted": 67,
+      "radikal_verified": 80,
+      "secure": 80,
+      "top100": 24,
+      "v2go_live": 126
     },
     "weights": {
+      "cross_source": 900,
       "fast": 500,
+      "radikal_verified": 350,
       "secure": 600,
       "seen_streak": 15,
       "top100": 1600,
       "top100_position_max": 300,
-      "trusted": 200
+      "trusted": 200,
+      "v2go_live": 350
     }
   },
-  "source": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt",
-  "source_configs": 501,
+  "source": [
+    "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt",
+    "https://raw.githubusercontent.com/Danialsamadi/v2go/main/AllConfigsSub.txt"
+  ],
+  "source_configs": 1086,
   "sources": {
     "fast": {
-      "configs": 343,
+      "configs": 372,
       "publishes_nodes": false,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/fast/configs.txt"
     },
+    "radikal_verified": {
+      "configs": 517,
+      "publishes_nodes": true,
+      "upstream_live_tested": true,
+      "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt"
+    },
     "secure": {
-      "configs": 269,
+      "configs": 282,
       "publishes_nodes": false,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/secure/configs.txt"
     },
@@ -102,11 +169,12 @@
       "publishes_nodes": false,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/top100.txt"
     },
-    "verified": {
-      "configs": 501,
+    "v2go_live": {
+      "configs": 723,
       "publishes_nodes": true,
-      "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt"
+      "upstream_live_tested": true,
+      "url": "https://raw.githubusercontent.com/Danialsamadi/v2go/main/AllConfigsSub.txt"
     }
   },
-  "version": 5
+  "version": 6
 }
