@@ -1,30 +1,111 @@
 {
+  "diversity": {
+    "best": {
+      "countries": 12,
+      "largest_country_group": 12,
+      "limits": {
+        "nodes": 50,
+        "per_country": 12,
+        "per_endpoint": 2,
+        "per_ip_network": 3
+      },
+      "selected": 50,
+      "skipped_country_cap": 0,
+      "skipped_endpoint_cap": 0,
+      "skipped_network_cap": 18
+    },
+    "stable": {
+      "countries": 15,
+      "largest_country_group": 16,
+      "limits": {
+        "nodes": 100,
+        "per_country": 30,
+        "per_endpoint": 3,
+        "per_ip_network": 5
+      },
+      "selected": 67,
+      "skipped_country_cap": 0,
+      "skipped_endpoint_cap": 0,
+      "skipped_network_cap": 11
+    }
+  },
   "filtering": {
     "duplicates": 0,
-    "reality_candidates": 206,
+    "reality_candidates": 188,
     "reality_rejected": {
-      "invalid_encryption": 16,
-      "missing_or_invalid_fingerprint": 64,
+      "invalid_encryption": 14,
+      "missing_or_invalid_fingerprint": 61,
       "missing_or_invalid_server_name": 1,
-      "unsafe_option": 7,
-      "unsupported_transport": 2
+      "unsafe_option": 6
     },
-    "ru_label": 8,
+    "ru_label": 3,
     "safe_reality_excluded_from_tcp_vision": {
-      "unsupported_transport": 14,
-      "vision_required": 12
+      "unsupported_transport": 11,
+      "vision_required": 17
     }
+  },
+  "history": {
+    "bootstrap_fill": 67,
+    "current_fresh": 78,
+    "current_trusted": 0,
+    "expired": 0,
+    "quarantined": 0,
+    "records": 78,
+    "revived": 0,
+    "stable_candidates": 78
   },
   "limitations": [
     "Availability tests and URI validation do not establish operator trust.",
     "Country filtering relies on the source label and is not a GeoIP guarantee.",
-    "The all-protocols reserve file is not covered by strict REALITY validation."
+    "The all-protocols reserve file is not covered by strict REALITY validation.",
+    "Quality tiers are upstream observations, not guarantees of future availability.",
+    "History contains only identity hashes and counters; it cannot retain a disappeared URI."
   ],
   "outputs": {
-    "all_protocols_without_ru": 559,
-    "safe_reality_expanded": 116,
-    "safe_reality_tcp_vision": 90
+    "all_protocols_without_ru": 509,
+    "history_stable": 67,
+    "ranked_best": 50,
+    "safe_reality_expanded": 106,
+    "safe_reality_tcp_vision": 78
+  },
+  "ranking": {
+    "matched_strict_candidates": {
+      "fast": 62,
+      "secure": 78,
+      "top100": 25
+    },
+    "weights": {
+      "fast": 500,
+      "secure": 600,
+      "seen_streak": 15,
+      "top100": 1600,
+      "top100_position_max": 300,
+      "trusted": 200
+    }
   },
   "source": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt",
-  "source_configs": 567
+  "source_configs": 512,
+  "sources": {
+    "fast": {
+      "configs": 331,
+      "publishes_nodes": false,
+      "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/fast/configs.txt"
+    },
+    "secure": {
+      "configs": 282,
+      "publishes_nodes": false,
+      "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/secure/configs.txt"
+    },
+    "top100": {
+      "configs": 100,
+      "publishes_nodes": false,
+      "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/top100.txt"
+    },
+    "verified": {
+      "configs": 512,
+      "publishes_nodes": true,
+      "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt"
+    }
+  },
+  "version": 5
 }
