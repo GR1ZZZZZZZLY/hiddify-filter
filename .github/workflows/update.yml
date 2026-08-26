@@ -33,6 +33,7 @@ jobs:
       - name: Build safer subscriptions without RU nodes
         env:
           SOURCE_URL: https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt
+          V2GO_SOURCE_URL: https://raw.githubusercontent.com/Danialsamadi/v2go/main/AllConfigsSub.txt
           FAST_SOURCE_URL: https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/fast/configs.txt
           SECURE_SOURCE_URL: https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/secure/configs.txt
           TOP_SOURCE_URL: https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/top100.txt
@@ -41,6 +42,7 @@ jobs:
           REALITY_ALL_OUTPUT_FILE: reality_all.txt
           BEST_OUTPUT_FILE: reality_best.txt
           STABLE_OUTPUT_FILE: reality_stable.txt
+          DURABLE_OUTPUT_FILE: reality_durable.txt
           REPORT_FILE: security_report.json
           HISTORY_FILE: node_history.json
           CHECKSUMS_FILE: checksums.sha256
@@ -49,8 +51,10 @@ jobs:
           MIN_REALITY_ALL_CONFIGS: "1"
           MIN_BEST_CONFIGS: "1"
           MIN_STABLE_CONFIGS: "1"
+          MIN_DURABLE_CONFIGS: "0"
           BEST_LIMIT: "50"
           STABLE_LIMIT: "100"
+          DURABLE_LIMIT: "50"
         run: python filter_subscription.py
 
       - name: Commit changed subscription
@@ -64,6 +68,7 @@ jobs:
             reality_all.txt \
             reality_best.txt \
             reality_stable.txt \
+            reality_durable.txt \
             security_report.json \
             node_history.json \
             checksums.sha256
