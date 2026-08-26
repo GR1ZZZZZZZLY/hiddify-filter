@@ -27,12 +27,16 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Build subscription without RU nodes
+      - name: Run offline safety tests
+        run: python -m unittest -v test_filter_subscription.py
+
+      - name: Build safer subscriptions without RU nodes
         env:
           SOURCE_URL: https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt
           OUTPUT_FILE: subscription.txt
           REALITY_OUTPUT_FILE: reality_tcp.txt
           REALITY_ALL_OUTPUT_FILE: reality_all.txt
+          REPORT_FILE: security_report.json
           MIN_CONFIGS: "5"
           MIN_REALITY_CONFIGS: "1"
           MIN_REALITY_ALL_CONFIGS: "1"
@@ -43,7 +47,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add subscription.txt reality_tcp.txt reality_all.txt
+          git add subscription.txt reality_tcp.txt reality_all.txt security_report.json
 
           if git diff --cached --quiet; then
             echo "Subscription has not changed"
