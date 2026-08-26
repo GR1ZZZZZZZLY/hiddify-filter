@@ -33,13 +33,24 @@ jobs:
       - name: Build safer subscriptions without RU nodes
         env:
           SOURCE_URL: https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt
+          FAST_SOURCE_URL: https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/fast/configs.txt
+          SECURE_SOURCE_URL: https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/secure/configs.txt
+          TOP_SOURCE_URL: https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/top100.txt
           OUTPUT_FILE: subscription.txt
           REALITY_OUTPUT_FILE: reality_tcp.txt
           REALITY_ALL_OUTPUT_FILE: reality_all.txt
+          BEST_OUTPUT_FILE: reality_best.txt
+          STABLE_OUTPUT_FILE: reality_stable.txt
           REPORT_FILE: security_report.json
+          HISTORY_FILE: node_history.json
+          CHECKSUMS_FILE: checksums.sha256
           MIN_CONFIGS: "5"
           MIN_REALITY_CONFIGS: "1"
           MIN_REALITY_ALL_CONFIGS: "1"
+          MIN_BEST_CONFIGS: "1"
+          MIN_STABLE_CONFIGS: "1"
+          BEST_LIMIT: "50"
+          STABLE_LIMIT: "100"
         run: python filter_subscription.py
 
       - name: Commit changed subscription
@@ -47,7 +58,15 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add subscription.txt reality_tcp.txt reality_all.txt security_report.json
+          git add \
+            subscription.txt \
+            reality_tcp.txt \
+            reality_all.txt \
+            reality_best.txt \
+            reality_stable.txt \
+            security_report.json \
+            node_history.json \
+            checksums.sha256
 
           if git diff --cached --quiet; then
             echo "Subscription has not changed"
