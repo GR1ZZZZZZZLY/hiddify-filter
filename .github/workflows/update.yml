@@ -1,4 +1,4 @@
-name: Update filtered Hiddify subscription
+name: Update filtered HAPP subscriptions
 
 on:
   schedule:
@@ -29,11 +29,13 @@ jobs:
 
       - name: Build subscription without RU nodes
         env:
-          SOURCE_URL: https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/top100.txt
+          SOURCE_URL: https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt
           OUTPUT_FILE: subscription.txt
           REALITY_OUTPUT_FILE: reality_tcp.txt
+          REALITY_ALL_OUTPUT_FILE: reality_all.txt
           MIN_CONFIGS: "5"
           MIN_REALITY_CONFIGS: "1"
+          MIN_REALITY_ALL_CONFIGS: "1"
         run: python filter_subscription.py
 
       - name: Commit changed subscription
@@ -41,7 +43,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add subscription.txt reality_tcp.txt
+          git add subscription.txt reality_tcp.txt reality_all.txt
 
           if git diff --cached --quiet; then
             echo "Subscription has not changed"
