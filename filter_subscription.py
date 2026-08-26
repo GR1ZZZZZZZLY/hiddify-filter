@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
-"""Build three verified subscriptions without RU nodes for HAPP/Hiddify."""
+"""Build safer public subscriptions without RU-labelled nodes for HAPP/Hiddify."""
 
 from __future__ import annotations
 
 import base64
+import binascii
+import ipaddress
 import json
 import os
 import re
+import uuid
+from collections import Counter, defaultdict
 from pathlib import Path
-from urllib.parse import parse_qs, unquote, urlsplit
+from urllib.parse import parse_qs, parse_qsl, unquote, urlsplit
 from urllib.request import Request, urlopen
 
 
@@ -23,6 +27,7 @@ REALITY_OUTPUT_FILE = Path(
 REALITY_ALL_OUTPUT_FILE = Path(
     os.environ.get("REALITY_ALL_OUTPUT_FILE", "reality_all.txt")
 )
+REPORT_FILE = Path(os.environ.get("REPORT_FILE", "security_report.json"))
 MIN_CONFIGS = int(os.environ.get("MIN_CONFIGS", "5"))
 MIN_REALITY_CONFIGS = int(os.environ.get("MIN_REALITY_CONFIGS", "1"))
 MIN_REALITY_ALL_CONFIGS = int(
@@ -30,10 +35,36 @@ MIN_REALITY_ALL_CONFIGS = int(
 )
 
 URI_RE = re.compile(r"^[a-z][a-z0-9+.-]*://", re.IGNORECASE)
+CONTROL_RE = re.compile(r"[\x00-\x1f\x7f]")
+BAD_PERCENT_RE = re.compile(r"%(?![0-9a-fA-F]{2})")
+DNS_LABEL_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$", re.I)
+SAFE_TOKEN_RE = re.compile(r"^[a-z0-9._-]{1,64}$", re.I)
 RUSSIA_RE = re.compile(
     r"(?:🇷🇺|(?<!\w)(?:RU|RUS|Russia|Russian|Россия|Российская\s+Федерация|"
     r"РФ|Москва|Moscow|Санкт[-\s]?Петербург|Saint\s+Petersburg)(?!\w))",
     re.IGNORECASE,
+)
+
+UNSAFE_QUERY_KEYS = {
+    "allowinsecure",
+    "insecure",
+    "skipcertverify",
+    "skipverify",
+    "tlsallowinsecure",
+}
+FALSE_VALUES = {"0", "false", "no", "off"}
+STRICT_TRANSPORTS = {"tcp", "raw"}
+EXPANDED_TRANSPORTS = {"tcp", "raw", "xhttp", "splithttp", "grpc"}
+VISION_FLOWS = {"xtls-rprx-vision", "xtls-rprx-vision-udp443"}
+RESERVED_DNS_SUFFIXES = (
+    ".example",
+    ".home",
+    ".internal",
+    ".invalid",
+    ".lan",
+    ".local",
+    ".localhost",
+    ".test",
 )
 
 
@@ -43,8 +74,20 @@ def decode_base64_text(value: str) -> str:
     value += "=" * (-len(value) % 4)
     try:
         return base64.urlsafe_b64decode(value.encode("ascii")).decode("utf-8")
-    except (UnicodeDecodeError, ValueError, TypeError):
+    except (UnicodeDecodeError, ValueError, TypeError, binascii.Error):
         return ""
+
+
+def decode_base64_bytes(value: str) -> bytes | None:
+    """Strictly decode URL-safe base64, accepting omitted padding."""
+    value = unquote(value).strip()
+    if not value or not re.fullmatch(r"[A-Za-z0-9_-]+={0,2}", value):
+        return None
+    value += "=" * (-len(value) % 4)
+    try:
+        return base64.b64decode(value, altchars=b"-_", validate=True)
+    except (ValueError, binascii.Error):
+        return None
 
 
 def node_names(line: str) -> list[str]:
@@ -86,85 +129,217 @@ def is_russian_node(line: str) -> bool:
     return any(RUSSIA_RE.search(name) for name in node_names(line))
 
 
-def first_query_value(query: dict[str, list[str]], name: str) -> str:
-    """Return the first case-insensitive query value in lowercase."""
+def normalized_query(raw_query: str) -> dict[str, list[str]]:
+    """Parse a query with bounded field count and case-insensitive names."""
+    result: defaultdict[str, list[str]] = defaultdict(list)
+    for key, value in parse_qsl(
+        raw_query,
+        keep_blank_values=True,
+        max_num_fields=100,
+    ):
+        result[key.strip().lower()].append(value.strip())
+    return dict(result)
+
+
+def values_for(query: dict[str, list[str]], *aliases: str) -> list[str]:
+    values: list[str] = []
+    for alias in aliases:
+        values.extend(query.get(alias.lower(), []))
+    return values
+
+
+def unique_value(
+    query: dict[str, list[str]],
+    aliases: tuple[str, ...],
+) -> tuple[str, bool]:
+    """Return a value and whether aliases contain conflicting values."""
+    all_values = values_for(query, *aliases)
+    unique = {value.casefold() for value in all_values}
+    if len(unique) > 1:
+        return "", True
+    values = [value for value in all_values if value != ""]
+    return (values[0] if values else ""), False
+
+
+def has_unsafe_option(query: dict[str, list[str]]) -> bool:
     for key, values in query.items():
-        if key.lower() == name and values:
-            return values[0].strip().lower()
-    return ""
+        normalized_key = re.sub(r"[-_]", "", key.casefold())
+        if normalized_key not in UNSAFE_QUERY_KEYS:
+            continue
+        if not values or any(value.casefold() not in FALSE_VALUES for value in values):
+            return True
+    return False
 
 
-def is_reality_tcp_vision(line: str) -> bool:
-    """Keep only VLESS over TCP/RAW with REALITY and XTLS Vision."""
+def valid_dns_name(value: str) -> bool:
+    value = value.rstrip(".").casefold()
+    if not value or len(value) > 253:
+        return False
+    if value == "localhost" or value.endswith(RESERVED_DNS_SUFFIXES):
+        return False
+    try:
+        ascii_value = value.encode("idna").decode("ascii")
+    except UnicodeError:
+        return False
+    if "." not in ascii_value:
+        return False
+    return all(DNS_LABEL_RE.fullmatch(label) for label in ascii_value.split("."))
+
+
+def valid_public_host(value: str) -> bool:
+    try:
+        return ipaddress.ip_address(value).is_global
+    except ValueError:
+        return valid_dns_name(value)
+
+
+def valid_server_name(value: str) -> bool:
+    """REALITY permits a DNS SNI or a public IP placeholder."""
+    try:
+        return ipaddress.ip_address(value).is_global
+    except ValueError:
+        return valid_dns_name(value)
+
+
+def is_reality_candidate(line: str) -> bool:
     try:
         parsed = urlsplit(line)
-    except ValueError:
+        query = normalized_query(parsed.query)
+    except (ValueError, UnicodeError):
         return False
-
-    if parsed.scheme.lower() != "vless":
-        return False
-
-    query = parse_qs(parsed.query, keep_blank_values=True)
-    transport = first_query_value(query, "type")
-    if not transport:
-        transport = first_query_value(query, "network")
-
-    security = first_query_value(query, "security")
-    flow = first_query_value(query, "flow")
-
-    # Xray renamed the old transport label "tcp" to "raw". Subscription
-    # links in the wild use both names for the same transport family.
+    security, conflict = unique_value(query, ("security",))
     return (
-        transport in {"", "tcp", "raw"}
-        and security == "reality"
-        and flow.startswith("xtls-rprx-vision")
+        not conflict
+        and parsed.scheme.casefold() == "vless"
+        and security.casefold() == "reality"
     )
 
 
-def is_reality_supported(line: str) -> bool:
-    """Keep VLESS REALITY links using a transport supported by Xray."""
+def reality_rejection_reason(
+    line: str,
+    *,
+    allowed_transports: set[str],
+    require_vision: bool,
+) -> str | None:
+    """Return a safe aggregate reason code, never the credential-bearing URI."""
+    if len(line) > 8192:
+        return "line_too_long"
+    if CONTROL_RE.search(line) or BAD_PERCENT_RE.search(line):
+        return "malformed_text"
+
     try:
         parsed = urlsplit(line)
-    except ValueError:
-        return False
+        query = normalized_query(parsed.query)
+        port = parsed.port
+        host = parsed.hostname
+    except (ValueError, UnicodeError):
+        return "invalid_uri"
 
-    if parsed.scheme.lower() != "vless":
-        return False
+    if parsed.scheme.casefold() != "vless":
+        return "not_vless"
+    if parsed.password is not None:
+        return "invalid_userinfo"
 
-    query = parse_qs(parsed.query, keep_blank_values=True)
-    transport = first_query_value(query, "type")
-    if not transport:
-        transport = first_query_value(query, "network")
+    user_id = unquote(parsed.username or "")
+    try:
+        parsed_uuid = uuid.UUID(user_id)
+    except (ValueError, AttributeError):
+        return "invalid_uuid"
+    if parsed_uuid.int == 0:
+        return "invalid_uuid"
 
-    security = first_query_value(query, "security")
-    return security == "reality" and transport in {
-        "",
-        "tcp",
-        "raw",
-        "xhttp",
-        "splithttp",
-        "grpc",
-    }
+    if not host or not valid_public_host(host):
+        return "non_public_endpoint"
+    if port is None or not 1 <= port <= 65535:
+        return "invalid_port"
 
+    fragment = unquote(parsed.fragment)
+    if len(fragment) > 300 or CONTROL_RE.search(fragment):
+        return "invalid_display_name"
+    if has_unsafe_option(query):
+        return "unsafe_option"
 
-def fetch_source() -> str:
-    request = Request(
-        SOURCE_URL,
-        headers={"User-Agent": "hiddify-country-filter/1.0"},
+    security, conflict = unique_value(query, ("security",))
+    if conflict:
+        return "conflicting_security"
+    if security.casefold() != "reality":
+        return "not_reality"
+
+    encryption, conflict = unique_value(query, ("encryption",))
+    if conflict:
+        return "conflicting_encryption"
+    if encryption.casefold() != "none":
+        return "invalid_encryption"
+
+    transport, conflict = unique_value(query, ("type", "network"))
+    if conflict:
+        return "conflicting_transport"
+    transport = transport.casefold()
+    if transport not in allowed_transports:
+        return "unsupported_transport"
+
+    flow, conflict = unique_value(query, ("flow",))
+    if conflict:
+        return "conflicting_flow"
+    flow = flow.casefold()
+    if flow and flow not in VISION_FLOWS:
+        return "invalid_flow"
+    if require_vision and flow not in VISION_FLOWS:
+        return "vision_required"
+
+    public_key, conflict = unique_value(
+        query,
+        ("pbk", "publickey", "password"),
     )
-    with urlopen(request, timeout=45) as response:
-        return response.read().decode("utf-8-sig")
+    if conflict:
+        return "conflicting_reality_key"
+    decoded_key = decode_base64_bytes(public_key)
+    if decoded_key is None:
+        return "missing_or_invalid_reality_key"
+    if len(decoded_key) != 32:
+        return "invalid_reality_key_length"
+
+    server_name, conflict = unique_value(query, ("sni", "servername"))
+    if conflict:
+        return "conflicting_server_name"
+    if not server_name or not valid_server_name(server_name):
+        return "missing_or_invalid_server_name"
+
+    fingerprint, conflict = unique_value(query, ("fp", "fingerprint"))
+    if conflict:
+        return "conflicting_fingerprint"
+    if (
+        not fingerprint
+        or fingerprint.casefold() == "unsafe"
+        or not SAFE_TOKEN_RE.fullmatch(fingerprint)
+    ):
+        return "missing_or_invalid_fingerprint"
+
+    short_id, conflict = unique_value(query, ("sid", "shortid"))
+    if conflict:
+        return "conflicting_short_id"
+    if short_id and (
+        len(short_id) > 16
+        or len(short_id) % 2 != 0
+        or not re.fullmatch(r"[0-9a-fA-F]+", short_id)
+    ):
+        return "invalid_short_id"
+
+    return None
 
 
 def build_subscriptions(
     source: str,
-) -> tuple[list[str], list[str], list[str], int, int]:
+) -> tuple[list[str], list[str], list[str], dict[str, object]]:
     kept: list[str] = []
     reality_tcp: list[str] = []
     reality_all: list[str] = []
     seen: set[str] = set()
     removed_ru = 0
     duplicates = 0
+    reality_candidates = 0
+    rejected_reality: Counter[str] = Counter()
+    excluded_from_strict: Counter[str] = Counter()
 
     for raw_line in source.splitlines():
         line = raw_line.strip()
@@ -178,12 +353,57 @@ def build_subscriptions(
             continue
         seen.add(line)
         kept.append(line)
-        if is_reality_tcp_vision(line):
-            reality_tcp.append(line)
-        if is_reality_supported(line):
-            reality_all.append(line)
 
-    return kept, reality_tcp, reality_all, removed_ru, duplicates
+        if not is_reality_candidate(line):
+            continue
+        reality_candidates += 1
+
+        expanded_reason = reality_rejection_reason(
+            line,
+            allowed_transports=EXPANDED_TRANSPORTS,
+            require_vision=False,
+        )
+        if expanded_reason is not None:
+            rejected_reality[expanded_reason] += 1
+            continue
+        reality_all.append(line)
+
+        strict_reason = reality_rejection_reason(
+            line,
+            allowed_transports=STRICT_TRANSPORTS,
+            require_vision=True,
+        )
+        if strict_reason is None:
+            reality_tcp.append(line)
+        else:
+            excluded_from_strict[strict_reason] += 1
+
+    report: dict[str, object] = {
+        "source": SOURCE_URL,
+        "source_configs": sum(
+            1 for line in source.splitlines() if URI_RE.match(line.strip())
+        ),
+        "outputs": {
+            "all_protocols_without_ru": len(kept),
+            "safe_reality_expanded": len(reality_all),
+            "safe_reality_tcp_vision": len(reality_tcp),
+        },
+        "filtering": {
+            "duplicates": duplicates,
+            "reality_candidates": reality_candidates,
+            "reality_rejected": dict(sorted(rejected_reality.items())),
+            "safe_reality_excluded_from_tcp_vision": dict(
+                sorted(excluded_from_strict.items())
+            ),
+            "ru_label": removed_ru,
+        },
+        "limitations": [
+            "Availability tests and URI validation do not establish operator trust.",
+            "Country filtering relies on the source label and is not a GeoIP guarantee.",
+            "The all-protocols reserve file is not covered by strict REALITY validation.",
+        ],
+    }
+    return kept, reality_tcp, reality_all, report
 
 
 def write_subscription(path: Path, lines: list[str], title: str) -> None:
@@ -203,14 +423,20 @@ def write_subscription(path: Path, lines: list[str], title: str) -> None:
     temporary.replace(path)
 
 
+def write_report(path: Path, report: dict[str, object]) -> None:
+    """Write a stable report without timestamps or credential-bearing links."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(f".{path.name}.tmp")
+    temporary.write_text(
+        json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    temporary.replace(path)
+
+
 def main() -> None:
     source = fetch_source()
-    source_count = sum(
-        1 for line in source.splitlines() if URI_RE.match(line.strip())
-    )
-    kept, reality_tcp, reality_all, removed_ru, duplicates = build_subscriptions(
-        source
-    )
+    kept, reality_tcp, reality_all, report = build_subscriptions(source)
 
     if len(kept) < MIN_CONFIGS:
         raise RuntimeError(
@@ -231,27 +457,41 @@ def main() -> None:
         OUTPUT_FILE.resolve(),
         REALITY_OUTPUT_FILE.resolve(),
         REALITY_ALL_OUTPUT_FILE.resolve(),
+        REPORT_FILE.resolve(),
     }
-    if len(output_paths) != 3:
+    if len(output_paths) != 4:
         raise RuntimeError("All output files must have different paths")
 
-    write_subscription(OUTPUT_FILE, kept, "VERIFIED без RU")
+    write_subscription(OUTPUT_FILE, kept, "VERIFIED резерв без RU")
     write_subscription(
         REALITY_OUTPUT_FILE,
         reality_tcp,
-        "REALITY TCP Vision без RU",
+        "REALITY TCP SAFE без RU",
     )
     write_subscription(
         REALITY_ALL_OUTPUT_FILE,
         reality_all,
-        "REALITY расширенный без RU",
+        "REALITY SAFE расширенный без RU",
     )
+    write_report(REPORT_FILE, report)
+
+    outputs = report["outputs"]
+    filtering = report["filtering"]
     print(
-        f"source={source_count} kept={len(kept)} "
-        f"reality_tcp={len(reality_tcp)} "
-        f"reality_all={len(reality_all)} "
-        f"removed_ru={removed_ru} duplicates={duplicates}"
+        f"source={report['source_configs']} kept={outputs['all_protocols_without_ru']} "
+        f"reality_tcp_safe={outputs['safe_reality_tcp_vision']} "
+        f"reality_all_safe={outputs['safe_reality_expanded']} "
+        f"removed_ru={filtering['ru_label']} duplicates={filtering['duplicates']}"
     )
+
+
+def fetch_source() -> str:
+    request = Request(
+        SOURCE_URL,
+        headers={"User-Agent": "happ-reality-safety-filter/4.0"},
+    )
+    with urlopen(request, timeout=45) as response:
+        return response.read().decode("utf-8-sig")
 
 
 if __name__ == "__main__":
