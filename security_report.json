@@ -1,17 +1,18 @@
 {
   "filtering": {
     "duplicates": 0,
-    "reality_candidates": 227,
+    "reality_candidates": 206,
     "reality_rejected": {
-      "invalid_encryption": 15,
-      "missing_or_invalid_fingerprint": 68,
+      "invalid_encryption": 16,
+      "missing_or_invalid_fingerprint": 64,
       "missing_or_invalid_server_name": 1,
-      "unsafe_option": 9
+      "unsafe_option": 7,
+      "unsupported_transport": 2
     },
-    "ru_label": 6,
+    "ru_label": 8,
     "safe_reality_excluded_from_tcp_vision": {
-      "unsupported_transport": 16,
-      "vision_required": 13
+      "unsupported_transport": 14,
+      "vision_required": 12
     }
   },
   "limitations": [
@@ -20,10 +21,10 @@
     "The all-protocols reserve file is not covered by strict REALITY validation."
   ],
   "outputs": {
-    "all_protocols_without_ru": 602,
-    "safe_reality_expanded": 134,
-    "safe_reality_tcp_vision": 105
+    "all_protocols_without_ru": 559,
+    "safe_reality_expanded": 116,
+    "safe_reality_tcp_vision": 90
   },
   "source": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt",
-  "source_configs": 608
+  "source_configs": 567
 }
