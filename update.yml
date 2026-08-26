@@ -1,0 +1,51 @@
+name: Update filtered Hiddify subscription
+
+on:
+  schedule:
+    # GitHub cron uses UTC. Minute 17 avoids the busiest start-of-hour window.
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-filtered-subscription
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Build subscription without RU nodes
+        env:
+          SOURCE_URL: https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/top100.txt
+          OUTPUT_FILE: subscription.txt
+          MIN_CONFIGS: "5"
+        run: python filter_subscription.py
+
+      - name: Commit changed subscription
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add subscription.txt
+
+          if git diff --cached --quiet; then
+            echo "Subscription has not changed"
+            exit 0
+          fi
+
+          git commit -m "chore: update filtered subscription"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push
