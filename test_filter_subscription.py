@@ -24,14 +24,17 @@ def reality_link(
     name: str = "US test",
     transport: str = "tcp",
     flow: str | None = "xtls-rprx-vision",
+    user_id: str = UUID,
+    public_key: str = PUBLIC_KEY,
+    server_name: str = "www.cloudflare.com",
     overrides: dict[str, str | None] | None = None,
 ) -> str:
     query: dict[str, str] = {
         "security": "reality",
         "encryption": "none",
         "type": transport,
-        "pbk": PUBLIC_KEY,
-        "sni": "www.cloudflare.com",
+        "pbk": public_key,
+        "sni": server_name,
         "fp": "chrome",
         "sid": "12ab",
     }
@@ -42,7 +45,7 @@ def reality_link(
             query.pop(key, None)
         else:
             query[key] = value
-    return f"vless://{UUID}@{host}:443?{urlencode(query)}#{name}"
+    return f"vless://{user_id}@{host}:443?{urlencode(query)}#{name}"
 
 
 class RealitySafetyTests(unittest.TestCase):
@@ -136,11 +139,39 @@ class QualityProfileTests(unittest.TestCase):
         self.assertEqual(
             target.country_code(reality_link(name="🇩🇪 DE | tagged")), "DE"
         )
+        self.assertEqual(
+            target.country_code(
+                reality_link(name="v2go | 🇫🇷 FR | VLESS | 1")
+            ),
+            "FR",
+        )
+
+    def test_v2go_ru_label_is_removed(self) -> None:
+        ru = reality_link(name="v2go | 🇷🇺 RU | VLESS | 1")
+        kept, strict, expanded, report = target.build_subscriptions(ru)
+        self.assertEqual((kept, strict, expanded), ([], [], []))
+        self.assertEqual(report["filtering"]["ru_label"], 1)
+
+    def test_merge_prefers_primary_and_tracks_both_sources(self) -> None:
+        primary = reality_link(name="US 🇺🇸 | primary")
+        secondary = reality_link(name="v2go | 🇺🇸 US | VLESS | 1")
+        merged, memberships, report = target.merge_candidate_sources(
+            primary,
+            secondary,
+        )
+        identity = target.node_identity(primary) or ""
+        self.assertEqual(list(target.iter_uri_lines(merged)), [primary])
+        self.assertEqual(
+            memberships[identity],
+            frozenset({"radikal_verified", "v2go_live"}),
+        )
+        self.assertEqual(report["cross_source_identities"], 1)
+        self.assertEqual(report["duplicates_collapsed"], 1)
 
     def test_quality_profiles_collapse_same_connection_with_new_label(self) -> None:
         first = reality_link(name="US 🇺🇸 | first")
         second = reality_link(name="DE 🇩🇪 | second")
-        best, stable, _, report = target.build_quality_profiles(
+        best, stable, durable, _, report = target.build_quality_profiles(
             [first, second],
             fast_source="",
             secure_source="",
@@ -149,6 +180,7 @@ class QualityProfileTests(unittest.TestCase):
         )
         self.assertEqual(best, [first])
         self.assertEqual(stable, [first])
+        self.assertEqual(durable, [])
         self.assertEqual(
             report["ranking"]["matched_strict_candidates"][
                 "duplicate_identity_collapsed"
@@ -159,7 +191,7 @@ class QualityProfileTests(unittest.TestCase):
     def test_tier_only_node_is_not_published(self) -> None:
         verified = reality_link(host="1.1.1.1", name="US verified")
         tier_only = reality_link(host="8.8.8.8", name="DE tier only")
-        best, stable, _, _ = target.build_quality_profiles(
+        best, stable, durable, _, _ = target.build_quality_profiles(
             [verified],
             fast_source=tier_only,
             secure_source=tier_only,
@@ -168,12 +200,13 @@ class QualityProfileTests(unittest.TestCase):
         )
         self.assertEqual(best, [verified])
         self.assertEqual(stable, [verified])
-        self.assertNotIn(tier_only, best + stable)
+        self.assertEqual(durable, [])
+        self.assertNotIn(tier_only, best + stable + durable)
 
     def test_top100_candidate_ranks_first(self) -> None:
         ordinary = reality_link(host="1.1.1.1", name="US ordinary")
         top = reality_link(host="8.8.8.8", name="DE top")
-        best, _, _, _ = target.build_quality_profiles(
+        best, _, _, _, _ = target.build_quality_profiles(
             [ordinary, top],
             fast_source="",
             secure_source="",
@@ -187,7 +220,7 @@ class QualityProfileTests(unittest.TestCase):
             reality_link(host="1.1.1.1", name="US one"),
             reality_link(host="8.8.8.8", name="DE two"),
         ]
-        _, first_stable, first_history, first_report = (
+        _, first_stable, first_durable, first_history, first_report = (
             target.build_quality_profiles(
                 nodes,
                 fast_source="",
@@ -197,10 +230,11 @@ class QualityProfileTests(unittest.TestCase):
             )
         )
         self.assertEqual(len(first_stable), 2)
+        self.assertEqual(first_durable, [])
         self.assertEqual(first_report["history"]["bootstrap_fill"], 2)
         self.assertEqual(first_report["history"]["current_trusted"], 0)
 
-        _, second_stable, second_history, second_report = (
+        _, second_stable, second_durable, second_history, second_report = (
             target.build_quality_profiles(
                 nodes,
                 fast_source="",
@@ -210,7 +244,8 @@ class QualityProfileTests(unittest.TestCase):
             )
         )
         self.assertEqual(len(second_stable), 2)
-        self.assertEqual(second_report["history"]["bootstrap_fill"], 0)
+        self.assertEqual(second_durable, [])
+        self.assertEqual(second_report["history"]["bootstrap_fill"], 2)
         self.assertEqual(second_report["history"]["current_trusted"], 2)
         self.assertTrue(
             all(entry["trusted"] for entry in second_history["nodes"].values())
@@ -225,6 +260,9 @@ class QualityProfileTests(unittest.TestCase):
                 "seen_total": 4,
                 "trusted": True,
                 "revivals": 0,
+                "presence_bits": target._presence_hex(0b1111),
+                "observed_runs": 4,
+                "cross_source_hits": 0,
             }
         }
         absent, absent_stats = target.update_history(set(), trusted)
@@ -243,6 +281,9 @@ class QualityProfileTests(unittest.TestCase):
                 "seen_total": 4,
                 "trusted": True,
                 "revivals": 0,
+                "presence_bits": target._presence_hex(0b1111),
+                "observed_runs": 4,
+                "cross_source_hits": 0,
             }
         }
         stats = {}
@@ -250,6 +291,92 @@ class QualityProfileTests(unittest.TestCase):
             history, stats = target.update_history(set(), history)
         self.assertNotIn(identity, history)
         self.assertEqual(stats["expired"], 1)
+
+    def test_v5_history_is_migrated_without_fake_24h_evidence(self) -> None:
+        identity = "c" * 64
+        document = {
+            "version": 1,
+            "nodes": {
+                identity: {
+                    "seen_streak": 8,
+                    "miss_streak": 0,
+                    "seen_total": 20,
+                    "trusted": True,
+                    "revivals": 1,
+                }
+            },
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "node_history.json"
+            path.write_text(json.dumps(document), encoding="utf-8")
+            migrated = target.load_history(path)[identity]
+        self.assertEqual(target.presence_count(migrated), 8)
+        self.assertEqual(migrated["observed_runs"], 8)
+        self.assertEqual(migrated["cross_source_hits"], 0)
+        self.assertTrue(target.is_stable_entry(migrated))
+        self.assertFalse(target.is_durable_entry(migrated))
+
+    def test_stable_requires_six_of_last_eight_runs(self) -> None:
+        identity = "d" * 64
+        history: dict[str, dict[str, object]] = {}
+        for present in (True, True, False, True, True, False, True, True):
+            history, _ = target.update_history(
+                {identity} if present else set(),
+                history,
+            )
+        entry = history[identity]
+        self.assertEqual(target.presence_count(entry, 8), 6)
+        self.assertTrue(target.is_stable_entry(entry))
+
+        history, _ = target.update_history(set(), history)
+        self.assertEqual(target.presence_count(history[identity], 8), 5)
+        self.assertFalse(target.is_stable_entry(history[identity]))
+
+    def test_durable_requires_72_of_96_and_cross_source_confirmation(self) -> None:
+        qualifying = {
+            "presence_bits": target._presence_hex((1 << 72) - 1),
+            "observed_runs": 96,
+            "cross_source_hits": 2,
+        }
+        self.assertTrue(target.is_durable_entry(qualifying))
+        self.assertFalse(
+            target.is_durable_entry({**qualifying, "cross_source_hits": 1})
+        )
+        self.assertFalse(
+            target.is_durable_entry(
+                {
+                    **qualifying,
+                    "presence_bits": target._presence_hex((1 << 71) - 1),
+                }
+            )
+        )
+
+    def test_cross_source_candidate_gets_ranking_bonus(self) -> None:
+        single = reality_link(host="1.1.1.1", name="US single")
+        cross = reality_link(host="8.8.8.8", name="DE cross")
+        identities = {
+            target.node_identity(single) or "",
+            target.node_identity(cross) or "",
+        }
+        history, _ = target.update_history(identities, {})
+        memberships = {
+            target.node_identity(single) or "": frozenset({"radikal_verified"}),
+            target.node_identity(cross) or "": frozenset(
+                {"radikal_verified", "v2go_live"}
+            ),
+        }
+        ranked, report = target.rank_nodes(
+            [single, cross],
+            fast_source="",
+            secure_source="",
+            top_source="",
+            history=history,
+            source_memberships=memberships,
+        )
+        self.assertEqual(ranked[0].line, cross)
+        self.assertEqual(
+            report["matched_strict_candidates"]["cross_source"], 1
+        )
 
     def test_network_diversity_cap_is_enforced(self) -> None:
         ranked = []
@@ -266,6 +393,10 @@ class QualityProfileTests(unittest.TestCase):
                     country="US",
                     endpoint=f"8.8.8.{number}:443",
                     network="ip:8.8.8.0/24",
+                    user_cluster=f"user-{number}",
+                    reality_key_cluster=f"key-{number}",
+                    operator_cluster=f"operator-{number}",
+                    source_count=1,
                 )
             )
         selected, stats = target.select_diverse(
@@ -274,13 +405,47 @@ class QualityProfileTests(unittest.TestCase):
             max_per_country=10,
             max_per_endpoint=2,
             max_per_network=3,
+            max_per_user_id=10,
+            max_per_reality_key=10,
+            max_per_operator_cluster=10,
         )
         self.assertEqual(len(selected), 3)
         self.assertEqual(stats["skipped_network_cap"], 4)
 
+    def test_operator_cluster_cap_is_enforced(self) -> None:
+        ranked = []
+        for number in range(5):
+            line = reality_link(host=f"8.8.{number}.1", name=f"US {number}")
+            ranked.append(
+                target.RankedNode(
+                    line=line,
+                    identity=target.node_identity(line) or "",
+                    score=100 - number,
+                    country="US",
+                    endpoint=f"8.8.{number}.1:443",
+                    network=f"ip:8.8.{number}.0/24",
+                    user_cluster=f"user-{number}",
+                    reality_key_cluster=f"key-{number}",
+                    operator_cluster="same-operator",
+                    source_count=1,
+                )
+            )
+        selected, stats = target.select_diverse(
+            ranked,
+            limit=10,
+            max_per_country=10,
+            max_per_endpoint=10,
+            max_per_network=10,
+            max_per_user_id=10,
+            max_per_reality_key=10,
+            max_per_operator_cluster=2,
+        )
+        self.assertEqual(len(selected), 2)
+        self.assertEqual(stats["skipped_operator_cluster_cap"], 3)
+
     def test_history_contains_hashes_not_credentials(self) -> None:
         line = reality_link(host="1.1.1.1", name="US private marker")
-        _, _, history, report = target.build_quality_profiles(
+        _, _, _, history, report = target.build_quality_profiles(
             [line],
             fast_source=line,
             secure_source=line,
@@ -300,7 +465,7 @@ class QualityProfileTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "non-hash"):
                 target.load_history(path)
 
-    def test_main_generates_and_updates_all_v5_files(self) -> None:
+    def test_main_generates_and_updates_all_v6_files(self) -> None:
         source = "\n".join(
             [
                 reality_link(host="1.1.1.1", name="US one"),
@@ -315,6 +480,7 @@ class QualityProfileTests(unittest.TestCase):
                 "REALITY_ALL_OUTPUT_FILE": root / "reality_all.txt",
                 "BEST_OUTPUT_FILE": root / "reality_best.txt",
                 "STABLE_OUTPUT_FILE": root / "reality_stable.txt",
+                "DURABLE_OUTPUT_FILE": root / "reality_durable.txt",
                 "REPORT_FILE": root / "security_report.json",
                 "HISTORY_FILE": root / "node_history.json",
                 "CHECKSUMS_FILE": root / "checksums.sha256",
@@ -323,6 +489,7 @@ class QualityProfileTests(unittest.TestCase):
                 "MIN_REALITY_ALL_CONFIGS": 1,
                 "MIN_BEST_CONFIGS": 1,
                 "MIN_STABLE_CONFIGS": 1,
+                "MIN_DURABLE_CONFIGS": 0,
             }
             with mock.patch.multiple(target, **paths), mock.patch.object(
                 target, "fetch_source", return_value=source
@@ -335,13 +502,14 @@ class QualityProfileTests(unittest.TestCase):
                     self.assertTrue(value.exists(), value)
             report = json.loads(paths["REPORT_FILE"].read_text(encoding="utf-8"))
             history = json.loads(paths["HISTORY_FILE"].read_text(encoding="utf-8"))
-            self.assertEqual(report["version"], 5)
+            self.assertEqual(report["version"], 6)
             self.assertEqual(report["history"]["current_trusted"], 2)
             self.assertEqual(report["outputs"]["ranked_best"], 2)
             self.assertEqual(report["outputs"]["history_stable"], 2)
+            self.assertEqual(report["outputs"]["history_durable_24h"], 0)
             self.assertEqual(len(history["nodes"]), 2)
             self.assertEqual(
-                len(paths["CHECKSUMS_FILE"].read_text().splitlines()), 5
+                len(paths["CHECKSUMS_FILE"].read_text().splitlines()), 6
             )
 
 
