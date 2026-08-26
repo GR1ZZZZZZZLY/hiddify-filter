@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build general and Reality/TCP/Vision subscriptions without RU nodes."""
+"""Build three verified subscriptions without RU nodes for HAPP/Hiddify."""
 
 from __future__ import annotations
 
@@ -14,14 +14,20 @@ from urllib.request import Request, urlopen
 
 SOURCE_URL = os.environ.get(
     "SOURCE_URL",
-    "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/top100.txt",
+    "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt",
 )
 OUTPUT_FILE = Path(os.environ.get("OUTPUT_FILE", "subscription.txt"))
 REALITY_OUTPUT_FILE = Path(
     os.environ.get("REALITY_OUTPUT_FILE", "reality_tcp.txt")
 )
+REALITY_ALL_OUTPUT_FILE = Path(
+    os.environ.get("REALITY_ALL_OUTPUT_FILE", "reality_all.txt")
+)
 MIN_CONFIGS = int(os.environ.get("MIN_CONFIGS", "5"))
 MIN_REALITY_CONFIGS = int(os.environ.get("MIN_REALITY_CONFIGS", "1"))
+MIN_REALITY_ALL_CONFIGS = int(
+    os.environ.get("MIN_REALITY_ALL_CONFIGS", "1")
+)
 
 URI_RE = re.compile(r"^[a-z][a-z0-9+.-]*://", re.IGNORECASE)
 RUSSIA_RE = re.compile(
@@ -109,10 +115,36 @@ def is_reality_tcp_vision(line: str) -> bool:
     # Xray renamed the old transport label "tcp" to "raw". Subscription
     # links in the wild use both names for the same transport family.
     return (
-        transport in {"tcp", "raw"}
+        transport in {"", "tcp", "raw"}
         and security == "reality"
         and flow.startswith("xtls-rprx-vision")
     )
+
+
+def is_reality_supported(line: str) -> bool:
+    """Keep VLESS REALITY links using a transport supported by Xray."""
+    try:
+        parsed = urlsplit(line)
+    except ValueError:
+        return False
+
+    if parsed.scheme.lower() != "vless":
+        return False
+
+    query = parse_qs(parsed.query, keep_blank_values=True)
+    transport = first_query_value(query, "type")
+    if not transport:
+        transport = first_query_value(query, "network")
+
+    security = first_query_value(query, "security")
+    return security == "reality" and transport in {
+        "",
+        "tcp",
+        "raw",
+        "xhttp",
+        "splithttp",
+        "grpc",
+    }
 
 
 def fetch_source() -> str:
@@ -126,9 +158,10 @@ def fetch_source() -> str:
 
 def build_subscriptions(
     source: str,
-) -> tuple[list[str], list[str], int, int]:
+) -> tuple[list[str], list[str], list[str], int, int]:
     kept: list[str] = []
     reality_tcp: list[str] = []
+    reality_all: list[str] = []
     seen: set[str] = set()
     removed_ru = 0
     duplicates = 0
@@ -147,15 +180,26 @@ def build_subscriptions(
         kept.append(line)
         if is_reality_tcp_vision(line):
             reality_tcp.append(line)
+        if is_reality_supported(line):
+            reality_all.append(line)
 
-    return kept, reality_tcp, removed_ru, duplicates
+    return kept, reality_tcp, reality_all, removed_ru, duplicates
 
 
-def write_subscription(path: Path, lines: list[str]) -> None:
+def write_subscription(path: Path, lines: list[str], title: str) -> None:
     """Atomically replace one generated subscription."""
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_name(f".{path.name}.tmp")
-    temporary.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    headers = [
+        f"#profile-title: {title}",
+        "#profile-update-interval: 1",
+        "#ping-type: proxy",
+        "#check-url-via-proxy: https://cp.cloudflare.com/generate_204",
+    ]
+    temporary.write_text(
+        "\n".join(headers + lines) + "\n",
+        encoding="utf-8",
+    )
     temporary.replace(path)
 
 
@@ -164,7 +208,9 @@ def main() -> None:
     source_count = sum(
         1 for line in source.splitlines() if URI_RE.match(line.strip())
     )
-    kept, reality_tcp, removed_ru, duplicates = build_subscriptions(source)
+    kept, reality_tcp, reality_all, removed_ru, duplicates = build_subscriptions(
+        source
+    )
 
     if len(kept) < MIN_CONFIGS:
         raise RuntimeError(
@@ -175,14 +221,35 @@ def main() -> None:
             "Refusing to replace the last good Reality file: "
             f"only {len(reality_tcp)} matching configs remain"
         )
-    if OUTPUT_FILE.resolve() == REALITY_OUTPUT_FILE.resolve():
-        raise RuntimeError("OUTPUT_FILE and REALITY_OUTPUT_FILE must be different")
+    if len(reality_all) < MIN_REALITY_ALL_CONFIGS:
+        raise RuntimeError(
+            "Refusing to replace the last good expanded Reality file: "
+            f"only {len(reality_all)} matching configs remain"
+        )
 
-    write_subscription(OUTPUT_FILE, kept)
-    write_subscription(REALITY_OUTPUT_FILE, reality_tcp)
+    output_paths = {
+        OUTPUT_FILE.resolve(),
+        REALITY_OUTPUT_FILE.resolve(),
+        REALITY_ALL_OUTPUT_FILE.resolve(),
+    }
+    if len(output_paths) != 3:
+        raise RuntimeError("All output files must have different paths")
+
+    write_subscription(OUTPUT_FILE, kept, "VERIFIED без RU")
+    write_subscription(
+        REALITY_OUTPUT_FILE,
+        reality_tcp,
+        "REALITY TCP Vision без RU",
+    )
+    write_subscription(
+        REALITY_ALL_OUTPUT_FILE,
+        reality_all,
+        "REALITY расширенный без RU",
+    )
     print(
         f"source={source_count} kept={len(kept)} "
         f"reality_tcp={len(reality_tcp)} "
+        f"reality_all={len(reality_all)} "
         f"removed_ru={removed_ru} duplicates={duplicates}"
     )
 
