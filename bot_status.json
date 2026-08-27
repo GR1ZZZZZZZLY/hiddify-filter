@@ -1,0 +1,107 @@
+{
+  "filter_version": "6.2",
+  "generated_at_utc": "2026-08-27T17:31:46Z",
+  "health": {
+    "critical_reasons": [],
+    "reasons": [
+      "local_stale"
+    ],
+    "status": "degraded",
+    "summary": "Core subscriptions are available with reduced auxiliary health.",
+    "warning_reasons": [
+      "local_stale"
+    ]
+  },
+  "history": {
+    "current_trusted": 115,
+    "durable_candidates": 0,
+    "stable_candidates": 0,
+    "window_complete_current": 0,
+    "window_runs": 96
+  },
+  "local": {
+    "age_seconds": 23605,
+    "current_ok_selected": 0,
+    "expires_in_seconds": 0,
+    "fresh": false,
+    "generated_at_utc": "2026-08-27T10:58:21Z",
+    "matched_current_strict": 0,
+    "max_age_seconds": 10800,
+    "median_latency_ms": 0,
+    "qualified_report_nodes": 8,
+    "reported_nodes": 12,
+    "selected": 0,
+    "status": "stale"
+  },
+  "privacy": {
+    "contains_hmac_identifiers": false,
+    "contains_node_uris": false,
+    "contains_secrets": false
+  },
+  "profiles": {
+    "best": {
+      "count": 50,
+      "path": "reality_best.txt",
+      "state": "ready"
+    },
+    "durable": {
+      "count": 0,
+      "path": "reality_durable.txt",
+      "state": "warming_up"
+    },
+    "expanded": {
+      "count": 373,
+      "path": "reality_all.txt",
+      "state": "ready"
+    },
+    "local": {
+      "count": 0,
+      "path": "reality_local.txt",
+      "state": "stale"
+    },
+    "reserve": {
+      "count": 1565,
+      "path": "subscription.txt",
+      "state": "ready"
+    },
+    "stable": {
+      "count": 100,
+      "path": "reality_stable.txt",
+      "state": "ready"
+    },
+    "strict": {
+      "count": 285,
+      "path": "reality_tcp.txt",
+      "state": "ready"
+    }
+  },
+  "schema_version": 1,
+  "service": "hiddify-filter",
+  "sources": {
+    "fast": {
+      "configs": 920,
+      "publishes_nodes": false,
+      "state": "ok"
+    },
+    "radikal_verified": {
+      "configs": 1246,
+      "publishes_nodes": true,
+      "state": "ok"
+    },
+    "secure": {
+      "configs": 771,
+      "publishes_nodes": false,
+      "state": "ok"
+    },
+    "top100": {
+      "configs": 100,
+      "publishes_nodes": false,
+      "state": "ok"
+    },
+    "v2go_live": {
+      "configs": 629,
+      "publishes_nodes": true,
+      "state": "ok"
+    }
+  }
+}
