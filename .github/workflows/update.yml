@@ -43,6 +43,9 @@ jobs:
           BEST_OUTPUT_FILE: reality_best.txt
           STABLE_OUTPUT_FILE: reality_stable.txt
           DURABLE_OUTPUT_FILE: reality_durable.txt
+          LOCAL_OUTPUT_FILE: reality_local.txt
+          LOCAL_RESULTS_FILE: local_results.json
+          LOCAL_TEST_HMAC_KEY: ${{ secrets.LOCAL_TEST_HMAC_KEY }}
           REPORT_FILE: security_report.json
           HISTORY_FILE: node_history.json
           CHECKSUMS_FILE: checksums.sha256
@@ -52,9 +55,14 @@ jobs:
           MIN_BEST_CONFIGS: "1"
           MIN_STABLE_CONFIGS: "1"
           MIN_DURABLE_CONFIGS: "0"
+          MIN_LOCAL_CONFIGS: "0"
           BEST_LIMIT: "50"
           STABLE_LIMIT: "100"
           DURABLE_LIMIT: "50"
+          LOCAL_LIMIT: "50"
+          LOCAL_RESULTS_MAX_AGE_SECONDS: "10800"
+          LOCAL_REQUIRED_SUCCESSES: "2"
+          LOCAL_REQUIRED_ATTEMPTS: "3"
         run: python filter_subscription.py
 
       - name: Commit changed subscription
@@ -69,6 +77,7 @@ jobs:
             reality_best.txt \
             reality_stable.txt \
             reality_durable.txt \
+            reality_local.txt \
             security_report.json \
             node_history.json \
             checksums.sha256
