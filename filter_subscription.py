@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Build ranked, safer public subscriptions for HAPP/Hiddify.
 
-Version 6 merges two independently maintained, live-tested candidate feeds.
-The upstream ``fast``, ``secure`` and ``top100`` feeds remain ranking signals,
-not additional sources of credentials.
+Version 6.1 merges two independently maintained, live-tested candidate feeds
+and can prioritize a fresh, HMAC-protected local reachability report.  The
+upstream ``fast``, ``secure`` and ``top100`` feeds remain ranking signals, not
+additional sources of credentials.
 """
 
 from __future__ import annotations
@@ -11,6 +12,7 @@ from __future__ import annotations
 import base64
 import binascii
 import hashlib
+import hmac
 import ipaddress
 import json
 import os
@@ -18,6 +20,7 @@ import re
 import uuid
 from collections import Counter, defaultdict
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import parse_qs, parse_qsl, unquote, urlsplit
 from urllib.request import Request, urlopen
@@ -57,9 +60,16 @@ STABLE_OUTPUT_FILE = Path(
 DURABLE_OUTPUT_FILE = Path(
     os.environ.get("DURABLE_OUTPUT_FILE", "reality_durable.txt")
 )
+LOCAL_OUTPUT_FILE = Path(
+    os.environ.get("LOCAL_OUTPUT_FILE", "reality_local.txt")
+)
 REPORT_FILE = Path(os.environ.get("REPORT_FILE", "security_report.json"))
 HISTORY_FILE = Path(os.environ.get("HISTORY_FILE", "node_history.json"))
 CHECKSUMS_FILE = Path(os.environ.get("CHECKSUMS_FILE", "checksums.sha256"))
+LOCAL_RESULTS_FILE = Path(
+    os.environ.get("LOCAL_RESULTS_FILE", "local_results.json")
+)
+LOCAL_TEST_HMAC_KEY = os.environ.get("LOCAL_TEST_HMAC_KEY", "")
 MIN_CONFIGS = int(os.environ.get("MIN_CONFIGS", "5"))
 MIN_REALITY_CONFIGS = int(os.environ.get("MIN_REALITY_CONFIGS", "1"))
 MIN_REALITY_ALL_CONFIGS = int(
@@ -68,9 +78,20 @@ MIN_REALITY_ALL_CONFIGS = int(
 MIN_BEST_CONFIGS = int(os.environ.get("MIN_BEST_CONFIGS", "1"))
 MIN_STABLE_CONFIGS = int(os.environ.get("MIN_STABLE_CONFIGS", "1"))
 MIN_DURABLE_CONFIGS = int(os.environ.get("MIN_DURABLE_CONFIGS", "0"))
+MIN_LOCAL_CONFIGS = int(os.environ.get("MIN_LOCAL_CONFIGS", "0"))
 BEST_LIMIT = int(os.environ.get("BEST_LIMIT", "50"))
 STABLE_LIMIT = int(os.environ.get("STABLE_LIMIT", "100"))
 DURABLE_LIMIT = int(os.environ.get("DURABLE_LIMIT", "50"))
+LOCAL_LIMIT = int(os.environ.get("LOCAL_LIMIT", "50"))
+LOCAL_RESULTS_MAX_AGE_SECONDS = int(
+    os.environ.get("LOCAL_RESULTS_MAX_AGE_SECONDS", "10800")
+)
+LOCAL_REQUIRED_SUCCESSES = int(
+    os.environ.get("LOCAL_REQUIRED_SUCCESSES", "2")
+)
+LOCAL_REQUIRED_ATTEMPTS = int(
+    os.environ.get("LOCAL_REQUIRED_ATTEMPTS", "3")
+)
 
 HISTORY_VERSION = 2
 TRUST_STREAK = 2
@@ -97,7 +118,17 @@ RANK_WEIGHTS = {
     "v2go_live": 350,
     "trusted": 200,
     "seen_streak": 15,
+    "local_verified": 10000,
+    "local_current_ok": 700,
+    "local_success": 250,
+    "local_latency_bonus_max": 500,
 }
+
+LOCAL_IDENTIFIER_SCHEME = "hmac-sha256-uri-without-fragment-v1"
+LOCAL_RESULTS_VERSION = 1
+LOCAL_RESULTS_MAX_BYTES = 1024 * 1024
+LOCAL_RESULTS_MAX_NODES = 300
+LOCAL_RESULTS_FUTURE_SKEW_SECONDS = 300
 
 URI_RE = re.compile(r"^[a-z][a-z0-9+.-]*://", re.IGNORECASE)
 CONTROL_RE = re.compile(r"[\x00-\x1f\x7f]")
@@ -760,6 +791,220 @@ def update_history(
 
 
 @dataclass(frozen=True)
+class LocalEvidence:
+    current_ok: bool
+    successes: int
+    attempts: int
+    median_latency_ms: int
+
+
+def is_local_qualified(evidence: LocalEvidence) -> bool:
+    return (
+        evidence.attempts >= LOCAL_REQUIRED_ATTEMPTS
+        and evidence.successes >= LOCAL_REQUIRED_SUCCESSES
+    )
+
+
+def local_uri_tag(line: str, secret: bytes) -> str:
+    """Match the Windows tester's exact HMAC identifier construction."""
+    without_fragment = line.strip().split("#", 1)[0]
+    return hmac.new(
+        secret,
+        without_fragment.encode("utf-8"),
+        hashlib.sha256,
+    ).hexdigest()
+
+
+def _local_report(status: str) -> dict[str, object]:
+    return {
+        "status": status,
+        "fresh": False,
+        "max_age_seconds": LOCAL_RESULTS_MAX_AGE_SECONDS,
+        "required_successes": LOCAL_REQUIRED_SUCCESSES,
+        "required_attempts": LOCAL_REQUIRED_ATTEMPTS,
+        "reported_nodes": 0,
+        "qualified_report_nodes": 0,
+        "currently_ok_report_nodes": 0,
+        "matched_current_strict": 0,
+        "qualified_current_strict": 0,
+        "selected": 0,
+    }
+
+
+def load_local_results(
+    path: Path,
+    encoded_secret: str,
+    *,
+    now: datetime | None = None,
+) -> tuple[bytes | None, dict[str, LocalEvidence], dict[str, object]]:
+    """Load a bounded local report without exposing its HMAC identifiers.
+
+    Local integration fails closed but does not stop the remote subscriptions:
+    malformed, future-dated or stale data returns no evidence and an
+    anonymized status for ``security_report.json``.
+    """
+    report = _local_report("not_configured")
+
+    def invalid(reason: str) -> tuple[
+        bytes | None,
+        dict[str, LocalEvidence],
+        dict[str, object],
+    ]:
+        report["status"] = "invalid"
+        report["reason"] = reason
+        return None, {}, report
+
+    if not encoded_secret.strip():
+        if path.exists():
+            report["status"] = "secret_missing"
+        return None, {}, report
+    if not path.exists():
+        report["status"] = "results_missing"
+        return None, {}, report
+    if not (1 <= LOCAL_REQUIRED_SUCCESSES <= LOCAL_REQUIRED_ATTEMPTS <= 10):
+        return invalid("invalid_thresholds")
+    if not (60 <= LOCAL_RESULTS_MAX_AGE_SECONDS <= 86400):
+        return invalid("invalid_max_age")
+
+    try:
+        secret = base64.b64decode(encoded_secret.strip(), validate=True)
+    except (binascii.Error, ValueError):
+        return invalid("invalid_secret_encoding")
+    if len(secret) != 32:
+        return invalid("invalid_secret_length")
+
+    try:
+        if path.stat().st_size > LOCAL_RESULTS_MAX_BYTES:
+            return invalid("file_too_large")
+        document = json.loads(path.read_text(encoding="utf-8-sig"))
+    except OSError:
+        return invalid("read_error")
+    except (UnicodeError, json.JSONDecodeError):
+        return invalid("malformed_json")
+
+    if not isinstance(document, dict):
+        return invalid("malformed_document")
+    if document.get("version") != LOCAL_RESULTS_VERSION:
+        return invalid("unsupported_version")
+    if document.get("identifier_scheme") != LOCAL_IDENTIFIER_SCHEME:
+        return invalid("unsupported_identifier_scheme")
+
+    generated_at = document.get("generated_at_utc")
+    if not isinstance(generated_at, str) or len(generated_at) > 40:
+        return invalid("invalid_timestamp")
+    try:
+        timestamp = datetime.fromisoformat(generated_at.replace("Z", "+00:00"))
+    except ValueError:
+        return invalid("invalid_timestamp")
+    if timestamp.tzinfo is None:
+        return invalid("timestamp_without_timezone")
+    current_time = now or datetime.now(timezone.utc)
+    if current_time.tzinfo is None:
+        raise ValueError("now must be timezone-aware")
+    age_seconds = int(
+        (current_time.astimezone(timezone.utc) - timestamp.astimezone(timezone.utc))
+        .total_seconds()
+    )
+    report["generated_at_utc"] = generated_at
+    report["age_seconds"] = max(age_seconds, 0)
+    if age_seconds < -LOCAL_RESULTS_FUTURE_SKEW_SECONDS:
+        return invalid("timestamp_in_future")
+
+    history_window = document.get("history_window")
+    total_tested = document.get("total_tested")
+    current_successes = document.get("current_successes")
+    expected_status = document.get("expected_http_status")
+    for value in (history_window, total_tested, current_successes, expected_status):
+        if isinstance(value, bool) or not isinstance(value, int):
+            return invalid("invalid_counters")
+    if not (LOCAL_REQUIRED_ATTEMPTS <= history_window <= 10):
+        return invalid("insufficient_history_window")
+    if not (1 <= total_tested <= LOCAL_RESULTS_MAX_NODES):
+        return invalid("invalid_tested_count")
+    if not (0 <= current_successes <= total_tested):
+        return invalid("invalid_success_count")
+    if not (100 <= expected_status <= 599):
+        return invalid("invalid_http_status")
+
+    raw_nodes = document.get("nodes")
+    if not isinstance(raw_nodes, dict) or len(raw_nodes) > LOCAL_RESULTS_MAX_NODES:
+        return invalid("invalid_nodes")
+    nodes: dict[str, LocalEvidence] = {}
+    for tag, raw_entry in raw_nodes.items():
+        if not isinstance(tag, str) or not re.fullmatch(r"[0-9a-f]{64}", tag):
+            return invalid("invalid_node_identifier")
+        if not isinstance(raw_entry, dict):
+            return invalid("invalid_node_record")
+        current_ok = raw_entry.get("current_ok")
+        successes = raw_entry.get("successes")
+        attempts = raw_entry.get("attempts")
+        latency = raw_entry.get("median_latency_ms")
+        if not isinstance(current_ok, bool):
+            return invalid("invalid_node_record")
+        if any(
+            isinstance(value, bool) or not isinstance(value, int)
+            for value in (successes, attempts, latency)
+        ):
+            return invalid("invalid_node_record")
+        if not (0 <= successes <= attempts <= history_window):
+            return invalid("invalid_node_record")
+        if not (0 <= latency <= 120000):
+            return invalid("invalid_node_record")
+        nodes[tag] = LocalEvidence(
+            current_ok=current_ok,
+            successes=successes,
+            attempts=attempts,
+            median_latency_ms=latency,
+        )
+
+    report["reported_nodes"] = len(nodes)
+    report["qualified_report_nodes"] = sum(
+        is_local_qualified(evidence) for evidence in nodes.values()
+    )
+    report["currently_ok_report_nodes"] = sum(
+        evidence.current_ok for evidence in nodes.values()
+    )
+    if age_seconds > LOCAL_RESULTS_MAX_AGE_SECONDS:
+        report["status"] = "stale"
+        return None, {}, report
+
+    report["status"] = "active"
+    report["fresh"] = True
+    return secret, nodes, report
+
+
+def _local_evidence_key(evidence: LocalEvidence) -> tuple[int, int, int, int]:
+    return (
+        evidence.successes * 1000 // max(evidence.attempts, 1),
+        evidence.successes,
+        int(evidence.current_ok),
+        -evidence.median_latency_ms,
+    )
+
+
+def match_local_evidence(
+    lines: list[str],
+    secret: bytes | None,
+    evidence_by_tag: dict[str, LocalEvidence],
+) -> dict[str, LocalEvidence]:
+    """Resolve HMAC tags to current in-memory identities without persisting URI."""
+    if secret is None or not evidence_by_tag:
+        return {}
+    matched: dict[str, LocalEvidence] = {}
+    for line in lines:
+        evidence = evidence_by_tag.get(local_uri_tag(line, secret))
+        identity = node_identity(line)
+        if evidence is None or identity is None:
+            continue
+        previous = matched.get(identity)
+        if previous is None or _local_evidence_key(evidence) > _local_evidence_key(
+            previous
+        ):
+            matched[identity] = evidence
+    return matched
+
+
+@dataclass(frozen=True)
 class RankedNode:
     line: str
     identity: str
@@ -781,9 +1026,11 @@ def rank_nodes(
     top_source: str,
     history: dict[str, dict[str, object]],
     source_memberships: dict[str, frozenset[str]] | None = None,
+    local_evidence: dict[str, LocalEvidence] | None = None,
 ) -> tuple[list[RankedNode], dict[str, object]]:
-    """Rank strict nodes using upstream tiers, source overlap and history."""
+    """Rank strict nodes using upstream tiers, history and local evidence."""
     source_memberships = source_memberships or {}
+    local_evidence = local_evidence or {}
     fast = source_identities(fast_source)
     secure = source_identities(secure_source)
     top_positions = source_identity_positions(top_source)
@@ -826,6 +1073,19 @@ def rank_nodes(
             matched["history_trusted"] += 1
             score += RANK_WEIGHTS["trusted"]
         score += int(entry["seen_streak"]) * RANK_WEIGHTS["seen_streak"]
+        evidence = local_evidence.get(identity)
+        if evidence is not None and is_local_qualified(evidence):
+            matched["local_verified"] += 1
+            score += RANK_WEIGHTS["local_verified"]
+            score += evidence.successes * RANK_WEIGHTS["local_success"]
+            if evidence.current_ok:
+                matched["local_current_ok"] += 1
+                score += RANK_WEIGHTS["local_current_ok"]
+            score += max(
+                0,
+                RANK_WEIGHTS["local_latency_bonus_max"]
+                - evidence.median_latency_ms // 4,
+            )
         endpoint, network = endpoint_and_network(line)
         user_cluster, reality_key_cluster, operator_cluster = connection_clusters(
             line
@@ -917,6 +1177,63 @@ def select_diverse(
     return selected, stats
 
 
+def build_local_profile(
+    strict_lines: list[str],
+    local_evidence: dict[str, LocalEvidence],
+) -> tuple[list[str], dict[str, int]]:
+    """Publish current strict nodes that passed the user's 2-of-3 rule."""
+    candidates: list[tuple[str, str, LocalEvidence]] = []
+    seen: set[str] = set()
+    for line in strict_lines:
+        identity = node_identity(line)
+        if identity is None or identity in seen:
+            continue
+        seen.add(identity)
+        evidence = local_evidence.get(identity)
+        if evidence is None or not is_local_qualified(evidence):
+            continue
+        candidates.append((line, identity, evidence))
+
+    candidates.sort(
+        key=lambda item: (
+            -(item[2].successes * 1000 // max(item[2].attempts, 1)),
+            -item[2].successes,
+            -int(item[2].current_ok),
+            item[2].median_latency_ms,
+            country_code(item[0]),
+            item[1],
+        )
+    )
+    selected = candidates[: max(LOCAL_LIMIT, 0)]
+    latencies = sorted(item[2].median_latency_ms for item in selected)
+    if not latencies:
+        median_latency = 0
+    else:
+        middle = len(latencies) // 2
+        if len(latencies) % 2:
+            median_latency = latencies[middle]
+        else:
+            median_latency = round(
+                (latencies[middle - 1] + latencies[middle]) / 2
+            )
+    stats = {
+        "candidates": len(candidates),
+        "selected": len(selected),
+        "current_ok_selected": sum(item[2].current_ok for item in selected),
+        "perfect_3_of_3_selected": sum(
+            item[2].successes == 3 and item[2].attempts == 3
+            for item in selected
+        ),
+        "qualified_2_of_3_selected": sum(
+            item[2].successes == 2 and item[2].attempts == 3
+            for item in selected
+        ),
+        "countries": len({country_code(item[0]) for item in selected}),
+        "median_latency_ms": median_latency,
+    }
+    return [item[0] for item in selected], stats
+
+
 def build_quality_profiles(
     strict_lines: list[str],
     *,
@@ -925,6 +1242,7 @@ def build_quality_profiles(
     top_source: str,
     previous_history: dict[str, dict[str, object]],
     source_memberships: dict[str, frozenset[str]] | None = None,
+    local_evidence: dict[str, LocalEvidence] | None = None,
 ) -> tuple[
     list[str],
     list[str],
@@ -955,6 +1273,7 @@ def build_quality_profiles(
         top_source=top_source,
         history=history_nodes,
         source_memberships=source_memberships,
+        local_evidence=local_evidence,
     )
 
     best, best_diversity = select_diverse(
@@ -1192,6 +1511,19 @@ def main() -> None:
     kept, reality_tcp, reality_all, report = build_subscriptions(
         merged_source
     )
+    local_secret, local_by_tag, local_report = load_local_results(
+        LOCAL_RESULTS_FILE,
+        LOCAL_TEST_HMAC_KEY,
+    )
+    local_evidence = match_local_evidence(
+        reality_tcp,
+        local_secret,
+        local_by_tag,
+    )
+    local_report["matched_current_strict"] = len(local_evidence)
+    local_report["qualified_current_strict"] = sum(
+        is_local_qualified(evidence) for evidence in local_evidence.values()
+    )
     previous_history = load_history(HISTORY_FILE)
     (
         reality_best,
@@ -1206,9 +1538,15 @@ def main() -> None:
         top_source=sources["top100"],
         previous_history=previous_history,
         source_memberships=source_memberships,
+        local_evidence=local_evidence,
     )
+    reality_local, local_selection = build_local_profile(
+        reality_tcp,
+        local_evidence,
+    )
+    local_report.update(local_selection)
 
-    report["version"] = 6
+    report["version"] = "6.1"
     report["source"] = [SOURCE_URL, V2GO_SOURCE_URL]
     report["merge"] = merge_stats
     report["sources"] = {
@@ -1244,15 +1582,19 @@ def main() -> None:
     outputs["ranked_best"] = len(reality_best)
     outputs["history_stable"] = len(reality_stable)
     outputs["history_durable_24h"] = len(reality_durable)
+    outputs["local_verified"] = len(reality_local)
     report["ranking"] = quality["ranking"]
     report["diversity"] = quality["diversity"]
     report["history"] = quality["history"]
+    report["local"] = local_report
     report["limitations"].extend(
         [
             "Quality tiers are upstream observations, not guarantees of future availability.",
             "History contains only identity hashes and counters; it cannot retain a disappeared URI.",
             "Remote HTTP tests originate outside the user's ISP and cannot prove local reachability.",
             "Cross-source presence is independent publication evidence, not proof of independent operators.",
+            "Local results expire after the configured freshness window and reflect only one ISP, time and test URL.",
+            "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files.",
         ]
     )
 
@@ -1285,6 +1627,11 @@ def main() -> None:
             "Refusing to replace the last good durable profile: "
             f"only {len(reality_durable)} configs remain"
         )
+    if len(reality_local) < MIN_LOCAL_CONFIGS:
+        raise RuntimeError(
+            "Refusing to replace the last good local profile: "
+            f"only {len(reality_local)} configs remain"
+        )
 
     output_paths = {
         OUTPUT_FILE.resolve(),
@@ -1293,11 +1640,12 @@ def main() -> None:
         BEST_OUTPUT_FILE.resolve(),
         STABLE_OUTPUT_FILE.resolve(),
         DURABLE_OUTPUT_FILE.resolve(),
+        LOCAL_OUTPUT_FILE.resolve(),
         REPORT_FILE.resolve(),
         HISTORY_FILE.resolve(),
         CHECKSUMS_FILE.resolve(),
     }
-    if len(output_paths) != 9:
+    if len(output_paths) != 10:
         raise RuntimeError("All output files must have different paths")
 
     write_subscription(OUTPUT_FILE, kept, "VERIFIED резерв без RU")
@@ -1326,6 +1674,11 @@ def main() -> None:
         reality_durable,
         "REALITY DURABLE 24H без RU",
     )
+    write_subscription(
+        LOCAL_OUTPUT_FILE,
+        reality_local,
+        "REALITY LOCAL 2/3 без RU",
+    )
     write_report(REPORT_FILE, report)
     write_report(HISTORY_FILE, history)
     write_checksums(
@@ -1337,6 +1690,7 @@ def main() -> None:
             BEST_OUTPUT_FILE,
             STABLE_OUTPUT_FILE,
             DURABLE_OUTPUT_FILE,
+            LOCAL_OUTPUT_FILE,
         ],
     )
 
@@ -1347,6 +1701,7 @@ def main() -> None:
         f"reality_all_safe={outputs['safe_reality_expanded']} "
         f"best={outputs['ranked_best']} stable={outputs['history_stable']} "
         f"durable={outputs['history_durable_24h']} "
+        f"local={outputs['local_verified']} "
         f"removed_ru={filtering['ru_label']} duplicates={filtering['duplicates']}"
     )
 
@@ -1354,7 +1709,7 @@ def main() -> None:
 def fetch_source(url: str = SOURCE_URL) -> str:
     request = Request(
         url,
-        headers={"User-Agent": "happ-reality-safety-filter/6.0"},
+        headers={"User-Agent": "happ-reality-safety-filter/6.1"},
     )
     with urlopen(request, timeout=45) as response:
         return response.read().decode("utf-8-sig")

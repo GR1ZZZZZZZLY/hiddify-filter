@@ -7,6 +7,7 @@ import base64
 import json
 import tempfile
 import unittest
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest import mock
 from urllib.parse import urlencode
@@ -121,6 +122,161 @@ class RealitySafetyTests(unittest.TestCase):
         self.assertEqual(
             report["filtering"]["reality_rejected"],
             {"unsafe_option": 1},
+        )
+
+
+class LocalResultsTests(unittest.TestCase):
+    SECRET = bytes(range(32))
+    ENCODED_SECRET = base64.b64encode(SECRET).decode("ascii")
+
+    def write_report(
+        self,
+        path: Path,
+        line: str,
+        generated_at: datetime,
+        *,
+        successes: int = 2,
+        attempts: int = 3,
+        current_ok: bool = True,
+        latency: int = 420,
+    ) -> None:
+        tag = target.local_uri_tag(line, self.SECRET)
+        document = {
+            "version": 1,
+            "identifier_scheme": target.LOCAL_IDENTIFIER_SCHEME,
+            "generated_at_utc": generated_at.astimezone(timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            ),
+            "history_window": 3,
+            "total_tested": 201,
+            "current_successes": 9,
+            "invalid_candidates": 0,
+            "expected_http_status": 204,
+            "failure_reasons": {"curl_exit_28": 192},
+            "nodes": {
+                tag: {
+                    "current_ok": current_ok,
+                    "successes": successes,
+                    "attempts": attempts,
+                    "median_latency_ms": latency,
+                }
+            },
+        }
+        path.write_text(json.dumps(document), encoding="utf-8")
+
+    def test_hmac_matches_windows_tester_vector_and_ignores_label(self) -> None:
+        uri = (
+            "vless://e08ff179-2c35-4a95-a8f8-6b2f7bd315ef@1.1.1.1:443?"
+            "security=reality&encryption=none&type=tcp&flow=xtls-rprx-vision&"
+            "pbk=AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8&"
+            "sni=www.cloudflare.com&fp=chrome&sid=12ab"
+        )
+        expected = (
+            "3ffbea00ccc8950f26f4e803ec9783c036fb142470da3298f23180a446636b8e"
+        )
+        self.assertEqual(target.local_uri_tag(uri, self.SECRET), expected)
+        self.assertEqual(
+            target.local_uri_tag(uri + "#US first", self.SECRET),
+            target.local_uri_tag(uri + "#DE renamed", self.SECRET),
+        )
+
+    def test_fresh_report_matches_current_line_and_qualifies(self) -> None:
+        line = reality_link(name="US original")
+        now = datetime(2026, 8, 27, 9, 30, tzinfo=timezone.utc)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "local_results.json"
+            self.write_report(path, line, now - timedelta(minutes=4))
+            secret, by_tag, report = target.load_local_results(
+                path,
+                self.ENCODED_SECRET,
+                now=now,
+            )
+        matched = target.match_local_evidence(
+            [line.split("#", 1)[0] + "#DE renamed"],
+            secret,
+            by_tag,
+        )
+        self.assertEqual(report["status"], "active")
+        self.assertTrue(report["fresh"])
+        self.assertEqual(report["qualified_report_nodes"], 1)
+        self.assertEqual(len(matched), 1)
+        self.assertTrue(target.is_local_qualified(next(iter(matched.values()))))
+        self.assertNotIn(
+            target.local_uri_tag(line, self.SECRET),
+            json.dumps(report),
+        )
+        self.assertNotIn(self.ENCODED_SECRET, json.dumps(report))
+
+    def test_stale_report_is_ignored(self) -> None:
+        line = reality_link()
+        now = datetime(2026, 8, 27, 13, 0, tzinfo=timezone.utc)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "local_results.json"
+            self.write_report(path, line, now - timedelta(hours=4))
+            secret, nodes, report = target.load_local_results(
+                path,
+                self.ENCODED_SECRET,
+                now=now,
+            )
+        self.assertIsNone(secret)
+        self.assertEqual(nodes, {})
+        self.assertEqual(report["status"], "stale")
+        self.assertFalse(report["fresh"])
+
+    def test_missing_or_invalid_secret_does_not_stop_remote_profiles(self) -> None:
+        line = reality_link()
+        now = datetime(2026, 8, 27, 9, 30, tzinfo=timezone.utc)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "local_results.json"
+            self.write_report(path, line, now)
+            _, _, missing = target.load_local_results(path, "", now=now)
+            _, _, invalid = target.load_local_results(path, "not-base64", now=now)
+        self.assertEqual(missing["status"], "secret_missing")
+        self.assertEqual(invalid["status"], "invalid")
+        self.assertEqual(invalid["reason"], "invalid_secret_encoding")
+
+    def test_local_profile_uses_two_of_three_and_orders_reliable_nodes(self) -> None:
+        perfect = reality_link(host="1.1.1.1", name="US perfect")
+        qualified = reality_link(host="8.8.8.8", name="DE qualified")
+        unstable = reality_link(host="9.9.9.9", name="NL unstable")
+        evidence = {
+            target.node_identity(perfect) or "": target.LocalEvidence(
+                True, 3, 3, 600
+            ),
+            target.node_identity(qualified) or "": target.LocalEvidence(
+                False, 2, 3, 300
+            ),
+            target.node_identity(unstable) or "": target.LocalEvidence(
+                True, 1, 3, 100
+            ),
+        }
+        selected, stats = target.build_local_profile(
+            [unstable, qualified, perfect],
+            evidence,
+        )
+        self.assertEqual(selected, [perfect, qualified])
+        self.assertEqual(stats["selected"], 2)
+        self.assertEqual(stats["perfect_3_of_3_selected"], 1)
+        self.assertEqual(stats["qualified_2_of_3_selected"], 1)
+
+    def test_local_evidence_has_highest_best_priority(self) -> None:
+        local = reality_link(host="1.1.1.1", name="US local")
+        remote_top = reality_link(host="8.8.8.8", name="DE top")
+        local_id = target.node_identity(local) or ""
+        best, _, _, _, report = target.build_quality_profiles(
+            [remote_top, local],
+            fast_source=remote_top,
+            secure_source=remote_top,
+            top_source=remote_top,
+            previous_history={},
+            local_evidence={
+                local_id: target.LocalEvidence(True, 3, 3, 400)
+            },
+        )
+        self.assertEqual(best[0], local)
+        self.assertEqual(
+            report["ranking"]["matched_strict_candidates"]["local_verified"],
+            1,
         )
 
 
@@ -465,15 +621,22 @@ class QualityProfileTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "non-hash"):
                 target.load_history(path)
 
-    def test_main_generates_and_updates_all_v6_files(self) -> None:
-        source = "\n".join(
-            [
-                reality_link(host="1.1.1.1", name="US one"),
-                reality_link(host="8.8.8.8", name="DE two"),
-            ]
-        )
+    def test_main_generates_and_updates_all_v61_files(self) -> None:
+        first = reality_link(host="1.1.1.1", name="US one")
+        second = reality_link(host="8.8.8.8", name="DE two")
+        source = "\n".join([first, second])
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
+            local_results = root / "local_results.json"
+            LocalResultsTests().write_report(
+                local_results,
+                first,
+                datetime.now(timezone.utc),
+                successes=3,
+                attempts=3,
+                current_ok=True,
+                latency=300,
+            )
             paths = {
                 "OUTPUT_FILE": root / "subscription.txt",
                 "REALITY_OUTPUT_FILE": root / "reality_tcp.txt",
@@ -481,15 +644,19 @@ class QualityProfileTests(unittest.TestCase):
                 "BEST_OUTPUT_FILE": root / "reality_best.txt",
                 "STABLE_OUTPUT_FILE": root / "reality_stable.txt",
                 "DURABLE_OUTPUT_FILE": root / "reality_durable.txt",
+                "LOCAL_OUTPUT_FILE": root / "reality_local.txt",
                 "REPORT_FILE": root / "security_report.json",
                 "HISTORY_FILE": root / "node_history.json",
                 "CHECKSUMS_FILE": root / "checksums.sha256",
+                "LOCAL_RESULTS_FILE": local_results,
+                "LOCAL_TEST_HMAC_KEY": LocalResultsTests.ENCODED_SECRET,
                 "MIN_CONFIGS": 1,
                 "MIN_REALITY_CONFIGS": 1,
                 "MIN_REALITY_ALL_CONFIGS": 1,
                 "MIN_BEST_CONFIGS": 1,
                 "MIN_STABLE_CONFIGS": 1,
                 "MIN_DURABLE_CONFIGS": 0,
+                "MIN_LOCAL_CONFIGS": 0,
             }
             with mock.patch.multiple(target, **paths), mock.patch.object(
                 target, "fetch_source", return_value=source
@@ -502,14 +669,17 @@ class QualityProfileTests(unittest.TestCase):
                     self.assertTrue(value.exists(), value)
             report = json.loads(paths["REPORT_FILE"].read_text(encoding="utf-8"))
             history = json.loads(paths["HISTORY_FILE"].read_text(encoding="utf-8"))
-            self.assertEqual(report["version"], 6)
+            self.assertEqual(report["version"], "6.1")
             self.assertEqual(report["history"]["current_trusted"], 2)
             self.assertEqual(report["outputs"]["ranked_best"], 2)
             self.assertEqual(report["outputs"]["history_stable"], 2)
             self.assertEqual(report["outputs"]["history_durable_24h"], 0)
+            self.assertEqual(report["outputs"]["local_verified"], 1)
+            self.assertEqual(report["local"]["status"], "active")
+            self.assertEqual(report["local"]["selected"], 1)
             self.assertEqual(len(history["nodes"]), 2)
             self.assertEqual(
-                len(paths["CHECKSUMS_FILE"].read_text().splitlines()), 6
+                len(paths["CHECKSUMS_FILE"].read_text().splitlines()), 7
             )
 
 
