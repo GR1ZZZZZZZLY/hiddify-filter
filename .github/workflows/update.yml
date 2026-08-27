@@ -5,8 +5,15 @@ on:
     # GitHub cron uses UTC. Offset minutes avoid the busiest quarter-hour marks.
     - cron: "7,22,37,52 * * * *"
   workflow_dispatch:
+    inputs:
+      telegram_test:
+        description: Send a Telegram test notification after a successful build
+        required: false
+        default: false
+        type: boolean
 
 permissions:
+  actions: read
   contents: write
 
 concurrency:
@@ -22,13 +29,26 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v6
 
+      - name: Capture previous bot status
+        shell: bash
+        run: |
+          previous="$RUNNER_TEMP/previous_bot_status.json"
+          if git cat-file -e HEAD:bot_status.json 2>/dev/null; then
+            git show HEAD:bot_status.json > "$previous"
+          else
+            printf '{}\n' > "$previous"
+          fi
+
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.13"
 
       - name: Run offline safety tests
-        run: python -m unittest -v test_filter_subscription.py
+        run: >-
+          python -m unittest -v
+          test_filter_subscription.py
+          test_telegram_notify.py
 
       - name: Build safer subscriptions without RU nodes
         env:
@@ -47,6 +67,7 @@ jobs:
           LOCAL_RESULTS_FILE: local_results.json
           LOCAL_TEST_HMAC_KEY: ${{ secrets.LOCAL_TEST_HMAC_KEY }}
           REPORT_FILE: security_report.json
+          BOT_STATUS_FILE: bot_status.json
           HISTORY_FILE: node_history.json
           CHECKSUMS_FILE: checksums.sha256
           MIN_CONFIGS: "5"
@@ -63,6 +84,10 @@ jobs:
           LOCAL_RESULTS_MAX_AGE_SECONDS: "10800"
           LOCAL_REQUIRED_SUCCESSES: "2"
           LOCAL_REQUIRED_ATTEMPTS: "3"
+          BOT_WARN_STRICT_CONFIGS: "20"
+          BOT_WARN_BEST_CONFIGS: "10"
+          BOT_WARN_STABLE_CONFIGS: "10"
+          BOT_WARN_LOCAL_CONFIGS: "3"
         run: python filter_subscription.py
 
       - name: Commit changed subscription
@@ -79,6 +104,7 @@ jobs:
             reality_durable.txt \
             reality_local.txt \
             security_report.json \
+            bot_status.json \
             node_history.json \
             checksums.sha256
 
@@ -90,3 +116,40 @@ jobs:
           git commit -m "chore: update filtered subscription"
           git pull --rebase origin "$GITHUB_REF_NAME"
           git push
+
+      - name: Notify Telegram about state changes
+        if: success()
+        continue-on-error: true
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_TEST: ${{ inputs.telegram_test || 'false' }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        shell: bash
+        run: |
+          arguments=(
+            --mode success
+            --status bot_status.json
+            --previous "$RUNNER_TEMP/previous_bot_status.json"
+            --run-url "$RUN_URL"
+          )
+          if [[ "$TELEGRAM_TEST" == "true" ]]; then
+            arguments+=(--force)
+          fi
+          python telegram_notify.py "${arguments[@]}"
+
+      - name: Notify Telegram about workflow failure
+        if: failure()
+        continue-on-error: true
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GITHUB_READ_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_WORKFLOW_FILE: update.yml
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: >-
+          python telegram_notify.py
+          --mode failure
+          --run-url "$RUN_URL"
