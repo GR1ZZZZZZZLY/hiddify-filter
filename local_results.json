@@ -1,0 +1,112 @@
+{
+    "version":  1,
+    "identifier_scheme":  "hmac-sha256-uri-without-fragment-v1",
+    "generated_at_utc":  "2026-08-27T09:26:13Z",
+    "history_window":  3,
+    "total_tested":  201,
+    "current_successes":  9,
+    "invalid_candidates":  0,
+    "expected_http_status":  204,
+    "failure_reasons":  {
+                            "curl_exit_28":  185,
+                            "curl_exit_35":  7
+                        },
+    "nodes":  {
+                  "05e1cbeb315109b1d20bd21a58dd085a1c232d8b8d440a1349bb499197df4009":  {
+                                                                                           "current_ok":  false,
+                                                                                           "successes":  1,
+                                                                                           "attempts":  3,
+                                                                                           "median_latency_ms":  319
+                                                                                       },
+                  "1661e242de622b0bb47b1b33a105d4652c34f40dec14b957ce0a4ec800a11c1e":  {
+                                                                                           "current_ok":  true,
+                                                                                           "successes":  3,
+                                                                                           "attempts":  3,
+                                                                                           "median_latency_ms":  384
+                                                                                       },
+                  "1cbc91457c8d2ea422c1a32fa890fcc9ce2adf525d77a241363a49082a6acd48":  {
+                                                                                           "current_ok":  true,
+                                                                                           "successes":  3,
+                                                                                           "attempts":  3,
+                                                                                           "median_latency_ms":  398
+                                                                                       },
+                  "3c9d91fb1105444fa308f0d5e6d648db05f3d168faa83bc368be63509478c373":  {
+                                                                                           "current_ok":  false,
+                                                                                           "successes":  1,
+                                                                                           "attempts":  3,
+                                                                                           "median_latency_ms":  348
+                                                                                       },
+                  "4c8f768ff2eae4ace03dfbc0f0f2bddbca68efd976f9f327c8d3b6d6e3000a0d":  {
+                                                                                           "current_ok":  true,
+                                                                                           "successes":  3,
+                                                                                           "attempts":  3,
+                                                                                           "median_latency_ms":  1344
+                                                                                       },
+                  "5daaa706e56be6d650ae593e3f272c42f3c4ae02c15141affc94377735e7ad0c":  {
+                                                                                           "current_ok":  true,
+                                                                                           "successes":  3,
+                                                                                           "attempts":  3,
+                                                                                           "median_latency_ms":  452
+                                                                                       },
+                  "5e43584db18396d0d49c8af1e8ecbedb834fb6447135d6c04b22a70fbbf3224e":  {
+                                                                                           "current_ok":  true,
+                                                                                           "successes":  3,
+                                                                                           "attempts":  3,
+                                                                                           "median_latency_ms":  545
+                                                                                       },
+                  "6beffdf40cbb53fdace8f6853405861ee1b98500f9743eb9b76bbdd5fdad1213":  {
+                                                                                           "current_ok":  true,
+                                                                                           "successes":  3,
+                                                                                           "attempts":  3,
+                                                                                           "median_latency_ms":  1611
+                                                                                       },
+                  "8f85ee183ae34e0d1fbed0f2b7f55a4fcf29eadbc7e3fe6cf90c29b2c7cdd8fe":  {
+                                                                                           "current_ok":  false,
+                                                                                           "successes":  1,
+                                                                                           "attempts":  3,
+                                                                                           "median_latency_ms":  1307
+                                                                                       },
+                  "ac4cdff768b1180c8cf7a5d4dcc6875b096ccc31478a1df41a5cc106669e9cca":  {
+                                                                                           "current_ok":  false,
+                                                                                           "successes":  2,
+                                                                                           "attempts":  3,
+                                                                                           "median_latency_ms":  364
+                                                                                       },
+                  "b11fdd1c3281bf8cd8cd44ec0dfa1fe9cfb0f908502ede93e1b23716f55c3e4f":  {
+                                                                                           "current_ok":  true,
+                                                                                           "successes":  3,
+                                                                                           "attempts":  3,
+                                                                                           "median_latency_ms":  480
+                                                                                       },
+                  "b815ccb5cdd24cb74e7e7f1815ceb6010c2d7643248fd79a4bd356fef34c27ba":  {
+                                                                                           "current_ok":  true,
+                                                                                           "successes":  3,
+                                                                                           "attempts":  3,
+                                                                                           "median_latency_ms":  1344
+                                                                                       },
+                  "c77432b18526957b531c9ada8f0d060af2cb107e63c5d3a4eb348cd8ddf30343":  {
+                                                                                           "current_ok":  false,
+                                                                                           "successes":  2,
+                                                                                           "attempts":  3,
+                                                                                           "median_latency_ms":  267
+                                                                                       },
+                  "df0041842d8fbbdbc4e8b7f2dd56929d0a496410800f37e383d39f05df528db2":  {
+                                                                                           "current_ok":  true,
+                                                                                           "successes":  3,
+                                                                                           "attempts":  3,
+                                                                                           "median_latency_ms":  481
+                                                                                       },
+                  "eb6af375393abb98f56358ae4f17617c15d952adf604917c0dcc742c5e76e459":  {
+                                                                                           "current_ok":  false,
+                                                                                           "successes":  2,
+                                                                                           "attempts":  3,
+                                                                                           "median_latency_ms":  1336
+                                                                                       },
+                  "f8052b3f5aebe7a01d17b50fb16dccb04d3cf632df2d3615d530b6a2143eb190":  {
+                                                                                           "current_ok":  false,
+                                                                                           "successes":  1,
+                                                                                           "attempts":  3,
+                                                                                           "median_latency_ms":  648
+                                                                                       }
+              }
+}
