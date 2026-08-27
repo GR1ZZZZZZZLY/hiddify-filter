@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Build ranked, safer public subscriptions for HAPP/Hiddify.
 
-Version 6.1 merges two independently maintained, live-tested candidate feeds
+Version 6.2 merges two independently maintained, live-tested candidate feeds
 and can prioritize a fresh, HMAC-protected local reachability report.  The
 upstream ``fast``, ``secure`` and ``top100`` feeds remain ranking signals, not
-additional sources of credentials.
+additional sources of credentials.  It also emits a credential-free, stable
+status contract for Telegram and other read-only clients.
 """
 
 from __future__ import annotations
@@ -64,6 +65,7 @@ LOCAL_OUTPUT_FILE = Path(
     os.environ.get("LOCAL_OUTPUT_FILE", "reality_local.txt")
 )
 REPORT_FILE = Path(os.environ.get("REPORT_FILE", "security_report.json"))
+BOT_STATUS_FILE = Path(os.environ.get("BOT_STATUS_FILE", "bot_status.json"))
 HISTORY_FILE = Path(os.environ.get("HISTORY_FILE", "node_history.json"))
 CHECKSUMS_FILE = Path(os.environ.get("CHECKSUMS_FILE", "checksums.sha256"))
 LOCAL_RESULTS_FILE = Path(
@@ -91,6 +93,18 @@ LOCAL_REQUIRED_SUCCESSES = int(
 )
 LOCAL_REQUIRED_ATTEMPTS = int(
     os.environ.get("LOCAL_REQUIRED_ATTEMPTS", "3")
+)
+BOT_WARN_STRICT_CONFIGS = int(
+    os.environ.get("BOT_WARN_STRICT_CONFIGS", "20")
+)
+BOT_WARN_BEST_CONFIGS = int(
+    os.environ.get("BOT_WARN_BEST_CONFIGS", "10")
+)
+BOT_WARN_STABLE_CONFIGS = int(
+    os.environ.get("BOT_WARN_STABLE_CONFIGS", "10")
+)
+BOT_WARN_LOCAL_CONFIGS = int(
+    os.environ.get("BOT_WARN_LOCAL_CONFIGS", "3")
 )
 
 HISTORY_VERSION = 2
@@ -1484,6 +1498,244 @@ def write_report(path: Path, report: dict[str, object]) -> None:
     temporary.replace(path)
 
 
+def _status_integer(container: object, key: str) -> int:
+    if not isinstance(container, dict):
+        return 0
+    value = container.get(key)
+    if isinstance(value, bool) or not isinstance(value, int):
+        return 0
+    return max(value, 0)
+
+
+def _utc_text(value: datetime) -> str:
+    if value.tzinfo is None:
+        raise ValueError("status timestamp must be timezone-aware")
+    return (
+        value.astimezone(timezone.utc)
+        .replace(microsecond=0)
+        .isoformat()
+        .replace("+00:00", "Z")
+    )
+
+
+def build_bot_status(
+    report: dict[str, object],
+    *,
+    generated_at: datetime | None = None,
+) -> dict[str, object]:
+    """Build the public, credential-free v1 status contract.
+
+    A successful build can be ``healthy`` or ``degraded``.  ``failed`` is a
+    valid contract state and is returned for missing critical core profiles;
+    normal ``main`` validation refuses to publish such a build.  Workflow
+    failures are delivered separately by the Telegram notifier so the last
+    good subscriptions and status file remain intact.
+    """
+    outputs = report.get("outputs")
+    sources = report.get("sources")
+    history = report.get("history")
+    local = report.get("local")
+    if not isinstance(outputs, dict):
+        outputs = {}
+    if not isinstance(sources, dict):
+        sources = {}
+    if not isinstance(history, dict):
+        history = {}
+    if not isinstance(local, dict):
+        local = {}
+
+    counts = {
+        "all": _status_integer(outputs, "all_protocols_without_ru"),
+        "expanded": _status_integer(outputs, "safe_reality_expanded"),
+        "strict": _status_integer(outputs, "safe_reality_tcp_vision"),
+        "best": _status_integer(outputs, "ranked_best"),
+        "stable": _status_integer(outputs, "history_stable"),
+        "durable": _status_integer(outputs, "history_durable_24h"),
+        "local": _status_integer(outputs, "local_verified"),
+    }
+    source_counts = {
+        name: _status_integer(sources.get(name), "configs")
+        for name in (
+            "radikal_verified",
+            "v2go_live",
+            "fast",
+            "secure",
+            "top100",
+        )
+    }
+    window_complete = _status_integer(history, "window_complete_current")
+    local_status = str(local.get("status", "not_configured"))
+    local_fresh = local.get("fresh") is True
+    local_age = local.get("age_seconds")
+    if isinstance(local_age, bool) or not isinstance(local_age, int):
+        local_age_value: int | None = None
+    else:
+        local_age_value = max(local_age, 0)
+    local_max_age = _status_integer(local, "max_age_seconds")
+    local_expires_in = (
+        max(local_max_age - local_age_value, 0)
+        if local_age_value is not None and local_max_age > 0
+        else None
+    )
+
+    critical_reasons: list[str] = []
+    warning_reasons: list[str] = []
+    if counts["all"] < max(MIN_CONFIGS, 1):
+        critical_reasons.append("all_profile_below_minimum")
+    if counts["expanded"] < max(MIN_REALITY_ALL_CONFIGS, 1):
+        critical_reasons.append("expanded_profile_below_minimum")
+    if counts["strict"] < max(MIN_REALITY_CONFIGS, 1):
+        critical_reasons.append("strict_profile_below_minimum")
+    if counts["best"] < max(MIN_BEST_CONFIGS, 1):
+        critical_reasons.append("best_profile_below_minimum")
+    if counts["stable"] < max(MIN_STABLE_CONFIGS, 1):
+        critical_reasons.append("stable_profile_below_minimum")
+
+    if counts["strict"] < max(BOT_WARN_STRICT_CONFIGS, 1):
+        warning_reasons.append("strict_profile_low")
+    if counts["best"] < max(BOT_WARN_BEST_CONFIGS, 1):
+        warning_reasons.append("best_profile_low")
+    if counts["stable"] < max(BOT_WARN_STABLE_CONFIGS, 1):
+        warning_reasons.append("stable_profile_low")
+    for source_name in ("radikal_verified", "v2go_live"):
+        if source_counts[source_name] == 0:
+            warning_reasons.append(f"source_empty_{source_name}")
+    if local_status != "active" or not local_fresh:
+        warning_reasons.append(f"local_{local_status}")
+    elif counts["local"] == 0:
+        warning_reasons.append("local_profile_empty")
+    elif counts["local"] < max(BOT_WARN_LOCAL_CONFIGS, 1):
+        warning_reasons.append("local_profile_low")
+    elif _status_integer(local, "current_ok_selected") == 0:
+        warning_reasons.append("local_no_current_success")
+    if window_complete > 0 and counts["durable"] == 0:
+        warning_reasons.append("durable_empty_after_full_window")
+
+    critical_reasons = list(dict.fromkeys(critical_reasons))
+    warning_reasons = list(dict.fromkeys(warning_reasons))
+    if critical_reasons:
+        health_status = "failed"
+        summary = "Critical subscription profiles are below safe minimums."
+    elif warning_reasons:
+        health_status = "degraded"
+        summary = "Core subscriptions are available with reduced auxiliary health."
+    else:
+        health_status = "healthy"
+        summary = "Core subscriptions and fresh local evidence are available."
+
+    if counts["durable"] > 0:
+        durable_state = "ready"
+    elif window_complete > 0:
+        durable_state = "empty"
+    else:
+        durable_state = "warming_up"
+    if local_status == "active" and counts["local"] > 0:
+        local_profile_state = "active"
+    elif local_status == "active":
+        local_profile_state = "empty"
+    elif local_status == "stale":
+        local_profile_state = "stale"
+    else:
+        local_profile_state = "unavailable"
+
+    now = generated_at or datetime.now(timezone.utc)
+    generated_at_utc = _utc_text(now)
+    local_generated_at = local.get("generated_at_utc")
+    if not isinstance(local_generated_at, str):
+        local_generated_at = None
+
+    return {
+        "schema_version": 1,
+        "service": "hiddify-filter",
+        "filter_version": "6.2",
+        "generated_at_utc": generated_at_utc,
+        "health": {
+            "status": health_status,
+            "summary": summary,
+            "reasons": critical_reasons + warning_reasons,
+            "critical_reasons": critical_reasons,
+            "warning_reasons": warning_reasons,
+        },
+        "profiles": {
+            "best": {
+                "path": "reality_best.txt",
+                "count": counts["best"],
+                "state": "ready" if counts["best"] > 0 else "empty",
+            },
+            "stable": {
+                "path": "reality_stable.txt",
+                "count": counts["stable"],
+                "state": "ready" if counts["stable"] > 0 else "empty",
+            },
+            "durable": {
+                "path": "reality_durable.txt",
+                "count": counts["durable"],
+                "state": durable_state,
+            },
+            "local": {
+                "path": "reality_local.txt",
+                "count": counts["local"],
+                "state": local_profile_state,
+            },
+            "strict": {
+                "path": "reality_tcp.txt",
+                "count": counts["strict"],
+                "state": "ready" if counts["strict"] > 0 else "empty",
+            },
+            "expanded": {
+                "path": "reality_all.txt",
+                "count": counts["expanded"],
+                "state": "ready" if counts["expanded"] > 0 else "empty",
+            },
+            "reserve": {
+                "path": "subscription.txt",
+                "count": counts["all"],
+                "state": "ready" if counts["all"] > 0 else "empty",
+            },
+        },
+        "sources": {
+            name: {
+                "configs": source_counts[name],
+                "state": "ok" if source_counts[name] > 0 else "empty",
+                "publishes_nodes": name in {"radikal_verified", "v2go_live"},
+            }
+            for name in source_counts
+        },
+        "history": {
+            "window_runs": HISTORY_WINDOW,
+            "window_complete_current": window_complete,
+            "stable_candidates": _status_integer(history, "stable_candidates"),
+            "durable_candidates": _status_integer(history, "durable_candidates"),
+            "current_trusted": _status_integer(history, "current_trusted"),
+        },
+        "local": {
+            "status": local_status,
+            "fresh": local_fresh,
+            "generated_at_utc": local_generated_at,
+            "age_seconds": local_age_value,
+            "max_age_seconds": local_max_age,
+            "expires_in_seconds": local_expires_in,
+            "reported_nodes": _status_integer(local, "reported_nodes"),
+            "qualified_report_nodes": _status_integer(
+                local, "qualified_report_nodes"
+            ),
+            "matched_current_strict": _status_integer(
+                local, "matched_current_strict"
+            ),
+            "selected": _status_integer(local, "selected"),
+            "current_ok_selected": _status_integer(
+                local, "current_ok_selected"
+            ),
+            "median_latency_ms": _status_integer(local, "median_latency_ms"),
+        },
+        "privacy": {
+            "contains_node_uris": False,
+            "contains_hmac_identifiers": False,
+            "contains_secrets": False,
+        },
+    }
+
+
 def write_checksums(path: Path, generated_files: list[Path]) -> None:
     """Publish hashes so downloaded subscription files can be compared."""
     lines = []
@@ -1497,6 +1749,7 @@ def write_checksums(path: Path, generated_files: list[Path]) -> None:
 
 
 def main() -> None:
+    build_time = datetime.now(timezone.utc)
     sources = {
         "radikal_verified": fetch_source(SOURCE_URL),
         "v2go_live": fetch_source(V2GO_SOURCE_URL),
@@ -1514,6 +1767,7 @@ def main() -> None:
     local_secret, local_by_tag, local_report = load_local_results(
         LOCAL_RESULTS_FILE,
         LOCAL_TEST_HMAC_KEY,
+        now=build_time,
     )
     local_evidence = match_local_evidence(
         reality_tcp,
@@ -1546,7 +1800,7 @@ def main() -> None:
     )
     local_report.update(local_selection)
 
-    report["version"] = "6.1"
+    report["version"] = "6.2"
     report["source"] = [SOURCE_URL, V2GO_SOURCE_URL]
     report["merge"] = merge_stats
     report["sources"] = {
@@ -1597,6 +1851,7 @@ def main() -> None:
             "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files.",
         ]
     )
+    bot_status = build_bot_status(report, generated_at=build_time)
 
     if len(kept) < MIN_CONFIGS:
         raise RuntimeError(
@@ -1642,11 +1897,14 @@ def main() -> None:
         DURABLE_OUTPUT_FILE.resolve(),
         LOCAL_OUTPUT_FILE.resolve(),
         REPORT_FILE.resolve(),
+        BOT_STATUS_FILE.resolve(),
         HISTORY_FILE.resolve(),
         CHECKSUMS_FILE.resolve(),
     }
-    if len(output_paths) != 10:
+    if len(output_paths) != 11:
         raise RuntimeError("All output files must have different paths")
+    if LOCAL_RESULTS_FILE.resolve() in output_paths:
+        raise RuntimeError("The local results input must not be an output file")
 
     write_subscription(OUTPUT_FILE, kept, "VERIFIED резерв без RU")
     write_subscription(
@@ -1680,6 +1938,7 @@ def main() -> None:
         "REALITY LOCAL 2/3 без RU",
     )
     write_report(REPORT_FILE, report)
+    write_report(BOT_STATUS_FILE, bot_status)
     write_report(HISTORY_FILE, history)
     write_checksums(
         CHECKSUMS_FILE,
@@ -1702,6 +1961,7 @@ def main() -> None:
         f"best={outputs['ranked_best']} stable={outputs['history_stable']} "
         f"durable={outputs['history_durable_24h']} "
         f"local={outputs['local_verified']} "
+        f"health={bot_status['health']['status']} "
         f"removed_ru={filtering['ru_label']} duplicates={filtering['duplicates']}"
     )
 
@@ -1709,7 +1969,7 @@ def main() -> None:
 def fetch_source(url: str = SOURCE_URL) -> str:
     request = Request(
         url,
-        headers={"User-Agent": "happ-reality-safety-filter/6.1"},
+        headers={"User-Agent": "happ-reality-safety-filter/6.2"},
     )
     with urlopen(request, timeout=45) as response:
         return response.read().decode("utf-8-sig")

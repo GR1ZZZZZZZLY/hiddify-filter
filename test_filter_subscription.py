@@ -280,6 +280,102 @@ class LocalResultsTests(unittest.TestCase):
         )
 
 
+class BotStatusTests(unittest.TestCase):
+    NOW = datetime(2026, 8, 27, 14, 30, tzinfo=timezone.utc)
+
+    def report(self) -> dict[str, object]:
+        return {
+            "outputs": {
+                "all_protocols_without_ru": 600,
+                "safe_reality_expanded": 260,
+                "safe_reality_tcp_vision": 229,
+                "ranked_best": 50,
+                "history_stable": 100,
+                "history_durable_24h": 12,
+                "local_verified": 7,
+            },
+            "sources": {
+                "radikal_verified": {"configs": 517},
+                "v2go_live": {"configs": 723},
+                "fast": {"configs": 80},
+                "secure": {"configs": 70},
+                "top100": {"configs": 100},
+            },
+            "history": {
+                "window_complete_current": 40,
+                "stable_candidates": 120,
+                "durable_candidates": 12,
+                "current_trusted": 180,
+            },
+            "local": {
+                "status": "active",
+                "fresh": True,
+                "generated_at_utc": "2026-08-27T14:20:00Z",
+                "age_seconds": 600,
+                "max_age_seconds": 10800,
+                "reported_nodes": 16,
+                "qualified_report_nodes": 8,
+                "matched_current_strict": 11,
+                "selected": 7,
+                "current_ok_selected": 6,
+                "median_latency_ms": 1004,
+            },
+        }
+
+    def test_healthy_contract_is_stable_and_credential_free(self) -> None:
+        report = self.report()
+        report["private_marker"] = (
+            "vless://secret@example.com?pbk=private#must-not-leak"
+        )
+        status = target.build_bot_status(report, generated_at=self.NOW)
+        serialized = json.dumps(status)
+        self.assertEqual(status["schema_version"], 1)
+        self.assertEqual(status["filter_version"], "6.2")
+        self.assertEqual(status["generated_at_utc"], "2026-08-27T14:30:00Z")
+        self.assertEqual(status["health"]["status"], "healthy")
+        self.assertEqual(status["profiles"]["local"]["count"], 7)
+        self.assertEqual(status["local"]["expires_in_seconds"], 10200)
+        self.assertNotIn("vless://", serialized)
+        self.assertNotIn("private", serialized)
+        self.assertFalse(status["privacy"]["contains_node_uris"])
+
+    def test_stale_local_report_degrades_without_failing_core(self) -> None:
+        report = self.report()
+        report["outputs"]["local_verified"] = 0
+        report["local"].update(
+            {
+                "status": "stale",
+                "fresh": False,
+                "age_seconds": 14400,
+                "selected": 0,
+                "current_ok_selected": 0,
+            }
+        )
+        status = target.build_bot_status(report, generated_at=self.NOW)
+        self.assertEqual(status["health"]["status"], "degraded")
+        self.assertIn("local_stale", status["health"]["warning_reasons"])
+        self.assertEqual(status["profiles"]["local"]["state"], "stale")
+
+    def test_missing_critical_profile_is_failed(self) -> None:
+        report = self.report()
+        report["outputs"]["ranked_best"] = 0
+        status = target.build_bot_status(report, generated_at=self.NOW)
+        self.assertEqual(status["health"]["status"], "failed")
+        self.assertIn(
+            "best_profile_below_minimum",
+            status["health"]["critical_reasons"],
+        )
+
+    def test_small_local_profile_is_degraded(self) -> None:
+        report = self.report()
+        report["outputs"]["local_verified"] = 2
+        report["local"]["selected"] = 2
+        report["local"]["current_ok_selected"] = 2
+        status = target.build_bot_status(report, generated_at=self.NOW)
+        self.assertEqual(status["health"]["status"], "degraded")
+        self.assertIn("local_profile_low", status["health"]["warning_reasons"])
+
+
 class QualityProfileTests(unittest.TestCase):
     def test_identity_ignores_label_and_query_order(self) -> None:
         first = reality_link(name="US first")
@@ -621,7 +717,7 @@ class QualityProfileTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "non-hash"):
                 target.load_history(path)
 
-    def test_main_generates_and_updates_all_v61_files(self) -> None:
+    def test_main_generates_and_updates_all_v62_files(self) -> None:
         first = reality_link(host="1.1.1.1", name="US one")
         second = reality_link(host="8.8.8.8", name="DE two")
         source = "\n".join([first, second])
@@ -646,6 +742,7 @@ class QualityProfileTests(unittest.TestCase):
                 "DURABLE_OUTPUT_FILE": root / "reality_durable.txt",
                 "LOCAL_OUTPUT_FILE": root / "reality_local.txt",
                 "REPORT_FILE": root / "security_report.json",
+                "BOT_STATUS_FILE": root / "bot_status.json",
                 "HISTORY_FILE": root / "node_history.json",
                 "CHECKSUMS_FILE": root / "checksums.sha256",
                 "LOCAL_RESULTS_FILE": local_results,
@@ -668,8 +765,11 @@ class QualityProfileTests(unittest.TestCase):
                 if isinstance(value, Path):
                     self.assertTrue(value.exists(), value)
             report = json.loads(paths["REPORT_FILE"].read_text(encoding="utf-8"))
+            bot_status = json.loads(
+                paths["BOT_STATUS_FILE"].read_text(encoding="utf-8")
+            )
             history = json.loads(paths["HISTORY_FILE"].read_text(encoding="utf-8"))
-            self.assertEqual(report["version"], "6.1")
+            self.assertEqual(report["version"], "6.2")
             self.assertEqual(report["history"]["current_trusted"], 2)
             self.assertEqual(report["outputs"]["ranked_best"], 2)
             self.assertEqual(report["outputs"]["history_stable"], 2)
@@ -677,6 +777,10 @@ class QualityProfileTests(unittest.TestCase):
             self.assertEqual(report["outputs"]["local_verified"], 1)
             self.assertEqual(report["local"]["status"], "active")
             self.assertEqual(report["local"]["selected"], 1)
+            self.assertEqual(bot_status["schema_version"], 1)
+            self.assertEqual(bot_status["filter_version"], "6.2")
+            self.assertEqual(bot_status["profiles"]["local"]["count"], 1)
+            self.assertEqual(bot_status["health"]["status"], "degraded")
             self.assertEqual(len(history["nodes"]), 2)
             self.assertEqual(
                 len(paths["CHECKSUMS_FILE"].read_text().splitlines()), 7
