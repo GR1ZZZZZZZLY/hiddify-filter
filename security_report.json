@@ -1,7 +1,7 @@
 {
   "diversity": {
     "best": {
-      "countries": 17,
+      "countries": 16,
       "largest_country_group": 12,
       "limits": {
         "nodes": 50,
@@ -13,10 +13,10 @@
         "per_user_id": 3
       },
       "selected": 50,
-      "skipped_country_cap": 28,
+      "skipped_country_cap": 32,
       "skipped_endpoint_cap": 6,
       "skipped_network_cap": 0,
-      "skipped_operator_cluster_cap": 0,
+      "skipped_operator_cluster_cap": 2,
       "skipped_reality_key_cap": 0,
       "skipped_user_id_cap": 0
     },
@@ -56,7 +56,7 @@
       "skipped_country_cap": 17,
       "skipped_endpoint_cap": 9,
       "skipped_network_cap": 0,
-      "skipped_operator_cluster_cap": 1,
+      "skipped_operator_cluster_cap": 6,
       "skipped_reality_key_cap": 0,
       "skipped_user_id_cap": 0
     }
@@ -91,10 +91,10 @@
     "history_version": 2,
     "quarantined": 414,
     "records": 1208,
-    "revived": 8,
-    "stable_candidates": 606,
+    "revived": 0,
+    "stable_candidates": 607,
     "stable_required_hits": 6,
-    "stable_selected_pool": 606,
+    "stable_selected_pool": 607,
     "stable_window_runs": 8,
     "window_complete_current": 0
   },
@@ -110,7 +110,7 @@
     "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files."
   ],
   "local": {
-    "age_seconds": 153081,
+    "age_seconds": 153979,
     "candidates": 0,
     "countries": 0,
     "current_ok_selected": 0,
@@ -147,11 +147,11 @@
   "ranking": {
     "matched_strict_candidates": {
       "cross_source": 46,
-      "fast": 294,
+      "fast": 287,
       "history_trusted": 631,
       "radikal_verified": 411,
-      "secure": 411,
-      "top100": 30,
+      "secure": 402,
+      "top100": 38,
       "v2go_live": 266
     },
     "weights": {
@@ -177,7 +177,7 @@
   "source_configs": 3152,
   "sources": {
     "fast": {
-      "configs": 1568,
+      "configs": 1519,
       "publishes_nodes": false,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/fast/configs.txt"
     },
@@ -188,7 +188,7 @@
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt"
     },
     "secure": {
-      "configs": 1208,
+      "configs": 1227,
       "publishes_nodes": false,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/secure/configs.txt"
     },
