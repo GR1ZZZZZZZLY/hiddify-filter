@@ -1,6 +1,6 @@
 {
   "filter_version": "6.2",
-  "generated_at_utc": "2026-08-29T16:29:49Z",
+  "generated_at_utc": "2026-08-29T16:44:49Z",
   "health": {
     "critical_reasons": [],
     "reasons": [
@@ -13,14 +13,14 @@
     ]
   },
   "history": {
-    "current_trusted": 559,
+    "current_trusted": 555,
     "durable_candidates": 0,
-    "stable_candidates": 481,
+    "stable_candidates": 470,
     "window_complete_current": 0,
     "window_runs": 96
   },
   "local": {
-    "age_seconds": 192688,
+    "age_seconds": 193588,
     "current_ok_selected": 0,
     "expires_in_seconds": 0,
     "fresh": false,
@@ -50,7 +50,7 @@
       "state": "warming_up"
     },
     "expanded": {
-      "count": 637,
+      "count": 655,
       "path": "reality_all.txt",
       "state": "ready"
     },
@@ -60,7 +60,7 @@
       "state": "stale"
     },
     "reserve": {
-      "count": 2055,
+      "count": 2108,
       "path": "subscription.txt",
       "state": "ready"
     },
@@ -84,12 +84,12 @@
       "state": "ok"
     },
     "radikal_verified": {
-      "configs": 1541,
+      "configs": 1583,
       "publishes_nodes": true,
       "state": "ok"
     },
     "secure": {
-      "configs": 1043,
+      "configs": 1012,
       "publishes_nodes": false,
       "state": "ok"
     },
