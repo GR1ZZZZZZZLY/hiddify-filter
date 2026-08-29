@@ -13,7 +13,7 @@
         "per_user_id": 3
       },
       "selected": 50,
-      "skipped_country_cap": 1,
+      "skipped_country_cap": 0,
       "skipped_endpoint_cap": 6,
       "skipped_network_cap": 0,
       "skipped_operator_cluster_cap": 5,
@@ -57,7 +57,7 @@
       "skipped_endpoint_cap": 11,
       "skipped_network_cap": 0,
       "skipped_operator_cluster_cap": 8,
-      "skipped_reality_key_cap": 7,
+      "skipped_reality_key_cap": 8,
       "skipped_user_id_cap": 0
     }
   },
@@ -91,10 +91,10 @@
     "history_version": 2,
     "quarantined": 337,
     "records": 1139,
-    "revived": 25,
-    "stable_candidates": 447,
+    "revived": 0,
+    "stable_candidates": 451,
     "stable_required_hits": 6,
-    "stable_selected_pool": 447,
+    "stable_selected_pool": 451,
     "stable_window_runs": 8,
     "window_complete_current": 0
   },
@@ -110,7 +110,7 @@
     "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files."
   ],
   "local": {
-    "age_seconds": 144995,
+    "age_seconds": 145887,
     "candidates": 0,
     "countries": 0,
     "current_ok_selected": 0,
@@ -147,10 +147,10 @@
   "ranking": {
     "matched_strict_candidates": {
       "cross_source": 57,
-      "fast": 322,
+      "fast": 321,
       "history_trusted": 640,
       "radikal_verified": 431,
-      "secure": 431,
+      "secure": 420,
       "top100": 17,
       "v2go_live": 266
     },
@@ -177,7 +177,7 @@
   "source_configs": 3140,
   "sources": {
     "fast": {
-      "configs": 1656,
+      "configs": 1676,
       "publishes_nodes": false,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/fast/configs.txt"
     },
@@ -188,7 +188,7 @@
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt"
     },
     "secure": {
-      "configs": 1271,
+      "configs": 1321,
       "publishes_nodes": false,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/secure/configs.txt"
     },
