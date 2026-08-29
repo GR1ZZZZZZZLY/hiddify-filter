@@ -13,11 +13,11 @@
         "per_user_id": 3
       },
       "selected": 50,
-      "skipped_country_cap": 0,
+      "skipped_country_cap": 17,
       "skipped_endpoint_cap": 6,
       "skipped_network_cap": 0,
-      "skipped_operator_cluster_cap": 1,
-      "skipped_reality_key_cap": 0,
+      "skipped_operator_cluster_cap": 0,
+      "skipped_reality_key_cap": 3,
       "skipped_user_id_cap": 0
     },
     "durable": {
@@ -32,7 +32,7 @@
         "per_reality_key": 4,
         "per_user_id": 4
       },
-      "selected": 9,
+      "selected": 10,
       "skipped_country_cap": 0,
       "skipped_endpoint_cap": 0,
       "skipped_network_cap": 0,
@@ -41,8 +41,8 @@
       "skipped_user_id_cap": 0
     },
     "stable": {
-      "countries": 21,
-      "largest_country_group": 15,
+      "countries": 22,
+      "largest_country_group": 22,
       "limits": {
         "nodes": 100,
         "per_country": 30,
@@ -56,7 +56,7 @@
       "skipped_country_cap": 0,
       "skipped_endpoint_cap": 11,
       "skipped_network_cap": 0,
-      "skipped_operator_cluster_cap": 1,
+      "skipped_operator_cluster_cap": 0,
       "skipped_reality_key_cap": 7,
       "skipped_user_id_cap": 0
     }
@@ -80,9 +80,9 @@
   "history": {
     "bootstrap_fill": 0,
     "cross_source_current": 43,
-    "current_fresh": 6,
-    "current_trusted": 528,
-    "durable_candidates": 9,
+    "current_fresh": 0,
+    "current_trusted": 534,
+    "durable_candidates": 10,
     "durable_cross_source_hits_required": 2,
     "durable_required_hits": 72,
     "durable_window_runs": 96,
@@ -90,12 +90,12 @@
     "history_version": 2,
     "quarantined": 880,
     "records": 1606,
-    "revived": 19,
-    "stable_candidates": 416,
+    "revived": 0,
+    "stable_candidates": 446,
     "stable_required_hits": 6,
-    "stable_selected_pool": 416,
+    "stable_selected_pool": 446,
     "stable_window_runs": 8,
-    "window_complete_current": 30
+    "window_complete_current": 36
   },
   "limitations": [
     "Availability tests and URI validation do not establish operator trust.",
@@ -109,7 +109,7 @@
     "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files."
   ],
   "local": {
-    "age_seconds": 205261,
+    "age_seconds": 206191,
     "candidates": 0,
     "countries": 0,
     "current_ok_selected": 0,
@@ -136,7 +136,7 @@
   },
   "outputs": {
     "all_protocols_without_ru": 1910,
-    "history_durable_24h": 9,
+    "history_durable_24h": 10,
     "history_stable": 100,
     "local_verified": 0,
     "ranked_best": 50,
@@ -147,10 +147,10 @@
     "matched_strict_candidates": {
       "cross_source": 43,
       "fast": 201,
-      "history_trusted": 528,
+      "history_trusted": 534,
       "radikal_verified": 333,
-      "secure": 333,
-      "top100": 10,
+      "secure": 295,
+      "top100": 27,
       "v2go_live": 244
     },
     "weights": {
@@ -187,7 +187,7 @@
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt"
     },
     "secure": {
-      "configs": 823,
+      "configs": 836,
       "publishes_nodes": false,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/secure/configs.txt"
     },

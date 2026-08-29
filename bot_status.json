@@ -1,6 +1,6 @@
 {
   "filter_version": "6.2",
-  "generated_at_utc": "2026-08-29T19:59:22Z",
+  "generated_at_utc": "2026-08-29T20:14:52Z",
   "health": {
     "critical_reasons": [],
     "reasons": [
@@ -13,14 +13,14 @@
     ]
   },
   "history": {
-    "current_trusted": 528,
-    "durable_candidates": 9,
-    "stable_candidates": 416,
-    "window_complete_current": 30,
+    "current_trusted": 534,
+    "durable_candidates": 10,
+    "stable_candidates": 446,
+    "window_complete_current": 36,
     "window_runs": 96
   },
   "local": {
-    "age_seconds": 205261,
+    "age_seconds": 206191,
     "current_ok_selected": 0,
     "expires_in_seconds": 0,
     "fresh": false,
@@ -45,7 +45,7 @@
       "state": "ready"
     },
     "durable": {
-      "count": 9,
+      "count": 10,
       "path": "reality_durable.txt",
       "state": "ready"
     },
@@ -89,7 +89,7 @@
       "state": "ok"
     },
     "secure": {
-      "configs": 823,
+      "configs": 836,
       "publishes_nodes": false,
       "state": "ok"
     },
