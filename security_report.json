@@ -57,45 +57,45 @@
       "skipped_endpoint_cap": 6,
       "skipped_network_cap": 0,
       "skipped_operator_cluster_cap": 10,
-      "skipped_reality_key_cap": 10,
+      "skipped_reality_key_cap": 12,
       "skipped_user_id_cap": 0
     }
   },
   "filtering": {
     "duplicates": 0,
-    "reality_candidates": 1336,
+    "reality_candidates": 1344,
     "reality_rejected": {
-      "invalid_encryption": 406,
-      "missing_or_invalid_fingerprint": 89,
+      "invalid_encryption": 401,
+      "missing_or_invalid_fingerprint": 86,
       "missing_or_invalid_server_name": 2,
-      "unsafe_option": 60,
+      "unsafe_option": 63,
       "unsupported_transport": 3
     },
-    "ru_label": 31,
+    "ru_label": 29,
     "safe_reality_excluded_from_tcp_vision": {
-      "unsupported_transport": 111,
-      "vision_required": 66
+      "unsupported_transport": 114,
+      "vision_required": 63
     }
   },
   "history": {
     "bootstrap_fill": 0,
-    "cross_source_current": 73,
-    "current_fresh": 1,
-    "current_trusted": 598,
-    "durable_candidates": 90,
+    "cross_source_current": 71,
+    "current_fresh": 0,
+    "current_trusted": 612,
+    "durable_candidates": 91,
     "durable_cross_source_hits_required": 2,
     "durable_required_hits": 72,
     "durable_window_runs": 96,
-    "expired": 1,
+    "expired": 0,
     "history_version": 2,
-    "quarantined": 720,
+    "quarantined": 707,
     "records": 1380,
-    "revived": 14,
-    "stable_candidates": 531,
+    "revived": 21,
+    "stable_candidates": 540,
     "stable_required_hits": 6,
-    "stable_selected_pool": 531,
+    "stable_selected_pool": 540,
     "stable_window_runs": 8,
-    "window_complete_current": 412
+    "window_complete_current": 417
   },
   "limitations": [
     "Availability tests and URI validation do not establish operator trust.",
@@ -109,7 +109,7 @@
     "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files."
   ],
   "local": {
-    "age_seconds": 239475,
+    "age_seconds": 240387,
     "candidates": 0,
     "countries": 0,
     "current_ok_selected": 0,
@@ -130,26 +130,26 @@
     "status": "stale"
   },
   "merge": {
-    "cross_source_identities": 424,
-    "duplicates_collapsed": 425,
-    "unique_connection_identities": 2945
+    "cross_source_identities": 423,
+    "duplicates_collapsed": 424,
+    "unique_connection_identities": 2910
   },
   "outputs": {
-    "all_protocols_without_ru": 3093,
+    "all_protocols_without_ru": 3059,
     "history_durable_24h": 50,
     "history_stable": 100,
     "local_verified": 0,
     "ranked_best": 50,
-    "safe_reality_expanded": 776,
-    "safe_reality_tcp_vision": 599
+    "safe_reality_expanded": 789,
+    "safe_reality_tcp_vision": 612
   },
   "ranking": {
     "matched_strict_candidates": {
-      "cross_source": 73,
-      "fast": 272,
-      "history_trusted": 598,
-      "radikal_verified": 397,
-      "secure": 397,
+      "cross_source": 71,
+      "fast": 273,
+      "history_trusted": 612,
+      "radikal_verified": 408,
+      "secure": 408,
       "top100": 19,
       "v2go_live": 275
     },
@@ -173,21 +173,21 @@
     "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt",
     "https://raw.githubusercontent.com/Danialsamadi/v2go/main/AllConfigsSub.txt"
   ],
-  "source_configs": 3124,
+  "source_configs": 3088,
   "sources": {
     "fast": {
-      "configs": 1525,
+      "configs": 1549,
       "publishes_nodes": false,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/fast/configs.txt"
     },
     "radikal_verified": {
-      "configs": 2180,
+      "configs": 2143,
       "publishes_nodes": true,
       "upstream_live_tested": true,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt"
     },
     "secure": {
-      "configs": 1269,
+      "configs": 1275,
       "publishes_nodes": false,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/secure/configs.txt"
     },
