@@ -2,7 +2,7 @@
   "diversity": {
     "best": {
       "countries": 15,
-      "largest_country_group": 8,
+      "largest_country_group": 12,
       "limits": {
         "nodes": 50,
         "per_country": 12,
@@ -13,11 +13,11 @@
         "per_user_id": 3
       },
       "selected": 50,
-      "skipped_country_cap": 0,
+      "skipped_country_cap": 18,
       "skipped_endpoint_cap": 5,
       "skipped_network_cap": 0,
-      "skipped_operator_cluster_cap": 6,
-      "skipped_reality_key_cap": 3,
+      "skipped_operator_cluster_cap": 1,
+      "skipped_reality_key_cap": 1,
       "skipped_user_id_cap": 0
     },
     "durable": {
@@ -41,8 +41,8 @@
       "skipped_user_id_cap": 0
     },
     "stable": {
-      "countries": 23,
-      "largest_country_group": 16,
+      "countries": 21,
+      "largest_country_group": 30,
       "limits": {
         "nodes": 100,
         "per_country": 30,
@@ -54,9 +54,9 @@
       },
       "selected": 100,
       "skipped_country_cap": 0,
-      "skipped_endpoint_cap": 6,
+      "skipped_endpoint_cap": 4,
       "skipped_network_cap": 0,
-      "skipped_operator_cluster_cap": 6,
+      "skipped_operator_cluster_cap": 4,
       "skipped_reality_key_cap": 11,
       "skipped_user_id_cap": 0
     }
@@ -87,14 +87,14 @@
     "durable_cross_source_hits_required": 2,
     "durable_required_hits": 72,
     "durable_window_runs": 96,
-    "expired": 9,
+    "expired": 1,
     "history_version": 2,
-    "quarantined": 703,
-    "records": 1368,
-    "revived": 24,
-    "stable_candidates": 571,
+    "quarantined": 702,
+    "records": 1367,
+    "revived": 0,
+    "stable_candidates": 575,
     "stable_required_hits": 6,
-    "stable_selected_pool": 571,
+    "stable_selected_pool": 575,
     "stable_window_runs": 8,
     "window_complete_current": 406
   },
@@ -110,7 +110,7 @@
     "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files."
   ],
   "local": {
-    "age_seconds": 246688,
+    "age_seconds": 247589,
     "candidates": 0,
     "countries": 0,
     "current_ok_selected": 0,
@@ -151,7 +151,7 @@
       "history_trusted": 604,
       "radikal_verified": 394,
       "secure": 394,
-      "top100": 14,
+      "top100": 31,
       "v2go_live": 276
     },
     "weights": {
