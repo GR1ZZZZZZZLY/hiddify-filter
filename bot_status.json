@@ -1,6 +1,6 @@
 {
   "filter_version": "6.2",
-  "generated_at_utc": "2026-08-30T12:44:49Z",
+  "generated_at_utc": "2026-08-30T12:59:34Z",
   "health": {
     "critical_reasons": [],
     "reasons": [
@@ -13,14 +13,14 @@
     ]
   },
   "history": {
-    "current_trusted": 574,
-    "durable_candidates": 106,
-    "stable_candidates": 543,
+    "current_trusted": 578,
+    "durable_candidates": 107,
+    "stable_candidates": 552,
     "window_complete_current": 402,
     "window_runs": 96
   },
   "local": {
-    "age_seconds": 265588,
+    "age_seconds": 266473,
     "current_ok_selected": 0,
     "expires_in_seconds": 0,
     "fresh": false,
@@ -79,7 +79,7 @@
   "service": "hiddify-filter",
   "sources": {
     "fast": {
-      "configs": 1270,
+      "configs": 1248,
       "publishes_nodes": false,
       "state": "ok"
     },
@@ -89,7 +89,7 @@
       "state": "ok"
     },
     "secure": {
-      "configs": 1092,
+      "configs": 1113,
       "publishes_nodes": false,
       "state": "ok"
     },

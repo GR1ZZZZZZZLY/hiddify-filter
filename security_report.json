@@ -1,8 +1,8 @@
 {
   "diversity": {
     "best": {
-      "countries": 15,
-      "largest_country_group": 10,
+      "countries": 16,
+      "largest_country_group": 9,
       "limits": {
         "nodes": 50,
         "per_country": 12,
@@ -16,13 +16,13 @@
       "skipped_country_cap": 0,
       "skipped_endpoint_cap": 11,
       "skipped_network_cap": 0,
-      "skipped_operator_cluster_cap": 6,
+      "skipped_operator_cluster_cap": 5,
       "skipped_reality_key_cap": 2,
       "skipped_user_id_cap": 0
     },
     "durable": {
       "countries": 16,
-      "largest_country_group": 10,
+      "largest_country_group": 9,
       "limits": {
         "nodes": 50,
         "per_country": 12,
@@ -41,8 +41,8 @@
       "skipped_user_id_cap": 0
     },
     "stable": {
-      "countries": 22,
-      "largest_country_group": 20,
+      "countries": 23,
+      "largest_country_group": 18,
       "limits": {
         "nodes": 100,
         "per_country": 30,
@@ -57,7 +57,7 @@
       "skipped_endpoint_cap": 10,
       "skipped_network_cap": 0,
       "skipped_operator_cluster_cap": 6,
-      "skipped_reality_key_cap": 12,
+      "skipped_reality_key_cap": 11,
       "skipped_user_id_cap": 0
     }
   },
@@ -81,20 +81,20 @@
   "history": {
     "bootstrap_fill": 0,
     "cross_source_current": 67,
-    "current_fresh": 4,
-    "current_trusted": 574,
-    "durable_candidates": 106,
+    "current_fresh": 0,
+    "current_trusted": 578,
+    "durable_candidates": 107,
     "durable_cross_source_hits_required": 2,
     "durable_required_hits": 72,
     "durable_window_runs": 96,
-    "expired": 3,
+    "expired": 1,
     "history_version": 2,
     "quarantined": 703,
-    "records": 1298,
-    "revived": 10,
-    "stable_candidates": 543,
+    "records": 1297,
+    "revived": 0,
+    "stable_candidates": 552,
     "stable_required_hits": 6,
-    "stable_selected_pool": 543,
+    "stable_selected_pool": 552,
     "stable_window_runs": 8,
     "window_complete_current": 402
   },
@@ -110,7 +110,7 @@
     "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files."
   ],
   "local": {
-    "age_seconds": 265588,
+    "age_seconds": 266473,
     "candidates": 0,
     "countries": 0,
     "current_ok_selected": 0,
@@ -147,10 +147,10 @@
   "ranking": {
     "matched_strict_candidates": {
       "cross_source": 67,
-      "fast": 271,
-      "history_trusted": 574,
+      "fast": 258,
+      "history_trusted": 578,
       "radikal_verified": 381,
-      "secure": 381,
+      "secure": 366,
       "top100": 16,
       "v2go_live": 264
     },
@@ -177,7 +177,7 @@
   "source_configs": 2313,
   "sources": {
     "fast": {
-      "configs": 1270,
+      "configs": 1248,
       "publishes_nodes": false,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/fast/configs.txt"
     },
@@ -188,7 +188,7 @@
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt"
     },
     "secure": {
-      "configs": 1092,
+      "configs": 1113,
       "publishes_nodes": false,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/secure/configs.txt"
     },
