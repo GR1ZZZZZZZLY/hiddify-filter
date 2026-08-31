@@ -1,6 +1,6 @@
 {
   "filter_version": "6.2",
-  "generated_at_utc": "2026-08-31T20:29:52Z",
+  "generated_at_utc": "2026-08-31T20:44:31Z",
   "health": {
     "critical_reasons": [],
     "reasons": [
@@ -13,14 +13,14 @@
     ]
   },
   "history": {
-    "current_trusted": 536,
-    "durable_candidates": 144,
-    "stable_candidates": 536,
+    "current_trusted": 510,
+    "durable_candidates": 140,
+    "stable_candidates": 478,
     "window_complete_current": 451,
     "window_runs": 96
   },
   "local": {
-    "age_seconds": 379891,
+    "age_seconds": 380770,
     "current_ok_selected": 0,
     "expires_in_seconds": 0,
     "fresh": false,
@@ -50,7 +50,7 @@
       "state": "ready"
     },
     "expanded": {
-      "count": 733,
+      "count": 734,
       "path": "reality_all.txt",
       "state": "ready"
     },
@@ -60,7 +60,7 @@
       "state": "stale"
     },
     "reserve": {
-      "count": 3089,
+      "count": 3071,
       "path": "subscription.txt",
       "state": "ready"
     },
@@ -70,7 +70,7 @@
       "state": "ready"
     },
     "strict": {
-      "count": 536,
+      "count": 542,
       "path": "reality_tcp.txt",
       "state": "ready"
     }
@@ -99,7 +99,7 @@
       "state": "ok"
     },
     "v2go_live": {
-      "configs": 894,
+      "configs": 827,
       "publishes_nodes": true,
       "state": "ok"
     }
