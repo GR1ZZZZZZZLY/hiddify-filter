@@ -1,6 +1,6 @@
 {
   "filter_version": "6.2",
-  "generated_at_utc": "2026-08-31T18:44:51Z",
+  "generated_at_utc": "2026-08-31T18:59:31Z",
   "health": {
     "critical_reasons": [],
     "reasons": [
@@ -20,7 +20,7 @@
     "window_runs": 96
   },
   "local": {
-    "age_seconds": 373590,
+    "age_seconds": 374470,
     "current_ok_selected": 0,
     "expires_in_seconds": 0,
     "fresh": false,
