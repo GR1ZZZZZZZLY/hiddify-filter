@@ -82,11 +82,11 @@
     "cross_source_current": 62,
     "current_fresh": 0,
     "current_trusted": 553,
-    "durable_candidates": 126,
+    "durable_candidates": 127,
     "durable_cross_source_hits_required": 2,
     "durable_required_hits": 72,
     "durable_window_runs": 96,
-    "expired": 1,
+    "expired": 0,
     "history_version": 2,
     "quarantined": 503,
     "records": 1059,
@@ -95,7 +95,7 @@
     "stable_required_hits": 6,
     "stable_selected_pool": 553,
     "stable_window_runs": 8,
-    "window_complete_current": 431
+    "window_complete_current": 432
   },
   "limitations": [
     "Availability tests and URI validation do not establish operator trust.",
@@ -109,7 +109,7 @@
     "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files."
   ],
   "local": {
-    "age_seconds": 351990,
+    "age_seconds": 352883,
     "candidates": 0,
     "countries": 0,
     "current_ok_selected": 0,
