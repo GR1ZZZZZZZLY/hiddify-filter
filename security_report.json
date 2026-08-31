@@ -109,7 +109,7 @@
     "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files."
   ],
   "local": {
-    "age_seconds": 376279,
+    "age_seconds": 377193,
     "candidates": 0,
     "countries": 0,
     "current_ok_selected": 0,
