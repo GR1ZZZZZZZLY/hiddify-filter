@@ -1,6 +1,6 @@
 {
   "filter_version": "6.2",
-  "generated_at_utc": "2026-08-31T03:29:42Z",
+  "generated_at_utc": "2026-08-31T03:44:45Z",
   "health": {
     "critical_reasons": [],
     "reasons": [
@@ -15,12 +15,12 @@
   "history": {
     "current_trusted": 548,
     "durable_candidates": 110,
-    "stable_candidates": 488,
+    "stable_candidates": 491,
     "window_complete_current": 430,
     "window_runs": 96
   },
   "local": {
-    "age_seconds": 318681,
+    "age_seconds": 319584,
     "current_ok_selected": 0,
     "expires_in_seconds": 0,
     "fresh": false,
