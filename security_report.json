@@ -87,14 +87,14 @@
     "durable_cross_source_hits_required": 2,
     "durable_required_hits": 72,
     "durable_window_runs": 96,
-    "expired": 3,
+    "expired": 0,
     "history_version": 2,
     "quarantined": 335,
     "records": 879,
     "revived": 0,
-    "stable_candidates": 511,
+    "stable_candidates": 542,
     "stable_required_hits": 6,
-    "stable_selected_pool": 511,
+    "stable_selected_pool": 542,
     "stable_window_runs": 8,
     "window_complete_current": 457
   },
@@ -110,7 +110,7 @@
     "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files."
   ],
   "local": {
-    "age_seconds": 386186,
+    "age_seconds": 387086,
     "candidates": 0,
     "countries": 0,
     "current_ok_selected": 0,
