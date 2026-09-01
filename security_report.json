@@ -80,8 +80,8 @@
   "history": {
     "bootstrap_fill": 0,
     "cross_source_current": 65,
-    "current_fresh": 1,
-    "current_trusted": 539,
+    "current_fresh": 0,
+    "current_trusted": 540,
     "durable_candidates": 105,
     "durable_cross_source_hits_required": 2,
     "durable_required_hits": 72,
@@ -90,10 +90,10 @@
     "history_version": 2,
     "quarantined": 695,
     "records": 1269,
-    "revived": 12,
-    "stable_candidates": 402,
+    "revived": 0,
+    "stable_candidates": 412,
     "stable_required_hits": 6,
-    "stable_selected_pool": 402,
+    "stable_selected_pool": 412,
     "stable_window_runs": 8,
     "window_complete_current": 339
   },
@@ -109,7 +109,7 @@
     "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files."
   ],
   "local": {
-    "age_seconds": 474500,
+    "age_seconds": 475270,
     "candidates": 0,
     "countries": 0,
     "current_ok_selected": 0,
@@ -147,7 +147,7 @@
     "matched_strict_candidates": {
       "cross_source": 65,
       "fast": 255,
-      "history_trusted": 539,
+      "history_trusted": 540,
       "radikal_verified": 359,
       "secure": 359,
       "top100": 11,
