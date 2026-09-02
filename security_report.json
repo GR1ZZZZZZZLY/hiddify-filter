@@ -37,7 +37,7 @@
       "skipped_endpoint_cap": 13,
       "skipped_network_cap": 0,
       "skipped_operator_cluster_cap": 0,
-      "skipped_reality_key_cap": 4,
+      "skipped_reality_key_cap": 5,
       "skipped_user_id_cap": 0
     },
     "stable": {
@@ -57,7 +57,7 @@
       "skipped_endpoint_cap": 22,
       "skipped_network_cap": 0,
       "skipped_operator_cluster_cap": 5,
-      "skipped_reality_key_cap": 13,
+      "skipped_reality_key_cap": 12,
       "skipped_user_id_cap": 0
     }
   },
@@ -80,22 +80,22 @@
   "history": {
     "bootstrap_fill": 0,
     "cross_source_current": 74,
-    "current_fresh": 22,
-    "current_trusted": 535,
-    "durable_candidates": 105,
+    "current_fresh": 0,
+    "current_trusted": 557,
+    "durable_candidates": 106,
     "durable_cross_source_hits_required": 2,
     "durable_required_hits": 72,
     "durable_window_runs": 96,
-    "expired": 0,
+    "expired": 77,
     "history_version": 2,
-    "quarantined": 788,
-    "records": 1376,
-    "revived": 63,
+    "quarantined": 711,
+    "records": 1299,
+    "revived": 0,
     "stable_candidates": 460,
     "stable_required_hits": 6,
     "stable_selected_pool": 460,
     "stable_window_runs": 8,
-    "window_complete_current": 374
+    "window_complete_current": 375
   },
   "limitations": [
     "Availability tests and URI validation do not establish operator trust.",
@@ -109,7 +109,7 @@
     "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files."
   ],
   "local": {
-    "age_seconds": 506952,
+    "age_seconds": 507715,
     "candidates": 0,
     "countries": 0,
     "current_ok_selected": 0,
@@ -147,7 +147,7 @@
     "matched_strict_candidates": {
       "cross_source": 74,
       "fast": 267,
-      "history_trusted": 535,
+      "history_trusted": 557,
       "radikal_verified": 382,
       "secure": 382,
       "top100": 13,
