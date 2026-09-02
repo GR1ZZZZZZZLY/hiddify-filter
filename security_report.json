@@ -37,11 +37,11 @@
       "skipped_endpoint_cap": 13,
       "skipped_network_cap": 0,
       "skipped_operator_cluster_cap": 0,
-      "skipped_reality_key_cap": 5,
+      "skipped_reality_key_cap": 4,
       "skipped_user_id_cap": 0
     },
     "stable": {
-      "countries": 23,
+      "countries": 24,
       "largest_country_group": 16,
       "limits": {
         "nodes": 100,
@@ -57,7 +57,7 @@
       "skipped_endpoint_cap": 22,
       "skipped_network_cap": 0,
       "skipped_operator_cluster_cap": 10,
-      "skipped_reality_key_cap": 12,
+      "skipped_reality_key_cap": 14,
       "skipped_user_id_cap": 0
     }
   },
@@ -80,22 +80,22 @@
   "history": {
     "bootstrap_fill": 0,
     "cross_source_current": 68,
-    "current_fresh": 8,
-    "current_trusted": 542,
-    "durable_candidates": 110,
+    "current_fresh": 0,
+    "current_trusted": 550,
+    "durable_candidates": 111,
     "durable_cross_source_hits_required": 2,
     "durable_required_hits": 72,
     "durable_window_runs": 96,
-    "expired": 4,
+    "expired": 0,
     "history_version": 2,
     "quarantined": 712,
     "records": 1295,
-    "revived": 50,
-    "stable_candidates": 457,
+    "revived": 0,
+    "stable_candidates": 485,
     "stable_required_hits": 6,
-    "stable_selected_pool": 457,
+    "stable_selected_pool": 485,
     "stable_window_runs": 8,
-    "window_complete_current": 381
+    "window_complete_current": 382
   },
   "limitations": [
     "Availability tests and URI validation do not establish operator trust.",
@@ -109,7 +109,7 @@
     "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files."
   ],
   "local": {
-    "age_seconds": 514146,
+    "age_seconds": 514919,
     "candidates": 0,
     "countries": 0,
     "current_ok_selected": 0,
@@ -147,7 +147,7 @@
     "matched_strict_candidates": {
       "cross_source": 68,
       "fast": 246,
-      "history_trusted": 542,
+      "history_trusted": 550,
       "radikal_verified": 368,
       "secure": 368,
       "top100": 23,
