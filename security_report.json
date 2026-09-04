@@ -1,8 +1,8 @@
 {
   "diversity": {
     "best": {
-      "countries": 17,
-      "largest_country_group": 10,
+      "countries": 16,
+      "largest_country_group": 11,
       "limits": {
         "nodes": 50,
         "per_country": 12,
@@ -16,13 +16,13 @@
       "skipped_country_cap": 0,
       "skipped_endpoint_cap": 12,
       "skipped_network_cap": 2,
-      "skipped_operator_cluster_cap": 12,
+      "skipped_operator_cluster_cap": 13,
       "skipped_reality_key_cap": 16,
       "skipped_user_id_cap": 0
     },
     "durable": {
       "countries": 17,
-      "largest_country_group": 8,
+      "largest_country_group": 7,
       "limits": {
         "nodes": 50,
         "per_country": 12,
@@ -41,8 +41,8 @@
       "skipped_user_id_cap": 0
     },
     "stable": {
-      "countries": 21,
-      "largest_country_group": 16,
+      "countries": 20,
+      "largest_country_group": 19,
       "limits": {
         "nodes": 100,
         "per_country": 30,
@@ -54,10 +54,10 @@
       },
       "selected": 100,
       "skipped_country_cap": 0,
-      "skipped_endpoint_cap": 15,
+      "skipped_endpoint_cap": 14,
       "skipped_network_cap": 0,
-      "skipped_operator_cluster_cap": 8,
-      "skipped_reality_key_cap": 29,
+      "skipped_operator_cluster_cap": 7,
+      "skipped_reality_key_cap": 28,
       "skipped_user_id_cap": 0
     }
   },
@@ -82,15 +82,15 @@
     "cross_source_current": 57,
     "current_fresh": 0,
     "current_trusted": 496,
-    "durable_candidates": 100,
+    "durable_candidates": 101,
     "durable_cross_source_hits_required": 2,
     "durable_required_hits": 72,
     "durable_window_runs": 96,
-    "expired": 3,
+    "expired": 0,
     "history_version": 2,
     "quarantined": 658,
     "records": 1164,
-    "revived": 10,
+    "revived": 0,
     "stable_candidates": 435,
     "stable_required_hits": 6,
     "stable_selected_pool": 435,
@@ -109,7 +109,7 @@
     "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files."
   ],
   "local": {
-    "age_seconds": 736360,
+    "age_seconds": 737170,
     "candidates": 0,
     "countries": 0,
     "current_ok_selected": 0,
@@ -149,8 +149,8 @@
       "fast": 238,
       "history_trusted": 496,
       "radikal_verified": 330,
-      "secure": 330,
-      "top100": 16,
+      "secure": 321,
+      "top100": 10,
       "v2go_live": 223
     },
     "weights": {
@@ -187,7 +187,7 @@
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt"
     },
     "secure": {
-      "configs": 1294,
+      "configs": 1304,
       "publishes_nodes": false,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/secure/configs.txt"
     },
