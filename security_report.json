@@ -2,7 +2,7 @@
   "diversity": {
     "best": {
       "countries": 17,
-      "largest_country_group": 12,
+      "largest_country_group": 11,
       "limits": {
         "nodes": 50,
         "per_country": 12,
@@ -14,10 +14,10 @@
       },
       "selected": 50,
       "skipped_country_cap": 0,
-      "skipped_endpoint_cap": 11,
+      "skipped_endpoint_cap": 10,
       "skipped_network_cap": 2,
-      "skipped_operator_cluster_cap": 9,
-      "skipped_reality_key_cap": 18,
+      "skipped_operator_cluster_cap": 8,
+      "skipped_reality_key_cap": 17,
       "skipped_user_id_cap": 0
     },
     "durable": {
@@ -80,20 +80,20 @@
   "history": {
     "bootstrap_fill": 0,
     "cross_source_current": 41,
-    "current_fresh": 1,
-    "current_trusted": 429,
+    "current_fresh": 0,
+    "current_trusted": 430,
     "durable_candidates": 86,
     "durable_cross_source_hits_required": 2,
     "durable_required_hits": 72,
     "durable_window_runs": 96,
-    "expired": 5,
+    "expired": 2,
     "history_version": 2,
-    "quarantined": 693,
-    "records": 1133,
-    "revived": 30,
-    "stable_candidates": 360,
+    "quarantined": 691,
+    "records": 1131,
+    "revived": 0,
+    "stable_candidates": 384,
     "stable_required_hits": 6,
-    "stable_selected_pool": 360,
+    "stable_selected_pool": 384,
     "stable_window_runs": 8,
     "window_complete_current": 321
   },
@@ -109,7 +109,7 @@
     "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files."
   ],
   "local": {
-    "age_seconds": 719296,
+    "age_seconds": 720066,
     "candidates": 0,
     "countries": 0,
     "current_ok_selected": 0,
@@ -147,7 +147,7 @@
     "matched_strict_candidates": {
       "cross_source": 41,
       "fast": 176,
-      "history_trusted": 429,
+      "history_trusted": 430,
       "radikal_verified": 263,
       "secure": 263,
       "top100": 7,
