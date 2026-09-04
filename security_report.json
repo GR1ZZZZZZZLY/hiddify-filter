@@ -2,7 +2,7 @@
   "diversity": {
     "best": {
       "countries": 18,
-      "largest_country_group": 8,
+      "largest_country_group": 12,
       "limits": {
         "nodes": 50,
         "per_country": 12,
@@ -13,16 +13,16 @@
         "per_user_id": 3
       },
       "selected": 50,
-      "skipped_country_cap": 0,
-      "skipped_endpoint_cap": 0,
+      "skipped_country_cap": 25,
+      "skipped_endpoint_cap": 2,
       "skipped_network_cap": 2,
       "skipped_operator_cluster_cap": 2,
-      "skipped_reality_key_cap": 7,
+      "skipped_reality_key_cap": 10,
       "skipped_user_id_cap": 0
     },
     "durable": {
-      "countries": 17,
-      "largest_country_group": 12,
+      "countries": 19,
+      "largest_country_group": 8,
       "limits": {
         "nodes": 50,
         "per_country": 12,
@@ -33,16 +33,16 @@
         "per_user_id": 4
       },
       "selected": 50,
-      "skipped_country_cap": 7,
-      "skipped_endpoint_cap": 0,
+      "skipped_country_cap": 0,
+      "skipped_endpoint_cap": 5,
       "skipped_network_cap": 3,
       "skipped_operator_cluster_cap": 0,
-      "skipped_reality_key_cap": 5,
+      "skipped_reality_key_cap": 8,
       "skipped_user_id_cap": 0
     },
     "stable": {
-      "countries": 21,
-      "largest_country_group": 19,
+      "countries": 20,
+      "largest_country_group": 30,
       "limits": {
         "nodes": 100,
         "per_country": 30,
@@ -53,49 +53,49 @@
         "per_user_id": 6
       },
       "selected": 100,
-      "skipped_country_cap": 0,
-      "skipped_endpoint_cap": 17,
+      "skipped_country_cap": 5,
+      "skipped_endpoint_cap": 16,
       "skipped_network_cap": 2,
-      "skipped_operator_cluster_cap": 13,
-      "skipped_reality_key_cap": 22,
+      "skipped_operator_cluster_cap": 8,
+      "skipped_reality_key_cap": 19,
       "skipped_user_id_cap": 0
     }
   },
   "filtering": {
     "duplicates": 0,
-    "reality_candidates": 1170,
+    "reality_candidates": 1229,
     "reality_rejected": {
-      "invalid_encryption": 410,
-      "missing_or_invalid_fingerprint": 79,
+      "invalid_encryption": 465,
+      "missing_or_invalid_fingerprint": 88,
       "missing_or_invalid_server_name": 4,
-      "unsafe_option": 59,
-      "unsupported_transport": 2
+      "unsafe_option": 51,
+      "unsupported_transport": 16
     },
-    "ru_label": 28,
+    "ru_label": 37,
     "safe_reality_excluded_from_tcp_vision": {
-      "unsupported_transport": 64,
-      "vision_required": 42
+      "unsupported_transport": 76,
+      "vision_required": 40
     }
   },
   "history": {
     "bootstrap_fill": 0,
     "cross_source_current": 33,
-    "current_fresh": 1,
-    "current_trusted": 509,
-    "durable_candidates": 96,
+    "current_fresh": 25,
+    "current_trusted": 464,
+    "durable_candidates": 97,
     "durable_cross_source_hits_required": 2,
     "durable_required_hits": 72,
     "durable_window_runs": 96,
-    "expired": 3,
+    "expired": 0,
     "history_version": 2,
-    "quarantined": 626,
-    "records": 1156,
-    "revived": 26,
-    "stable_candidates": 495,
+    "quarantined": 672,
+    "records": 1181,
+    "revived": 42,
+    "stable_candidates": 427,
     "stable_required_hits": 6,
-    "stable_selected_pool": 495,
+    "stable_selected_pool": 427,
     "stable_window_runs": 8,
-    "window_complete_current": 374
+    "window_complete_current": 364
   },
   "limitations": [
     "Availability tests and URI validation do not establish operator trust.",
@@ -109,7 +109,7 @@
     "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files."
   ],
   "local": {
-    "age_seconds": 678416,
+    "age_seconds": 679779,
     "candidates": 0,
     "countries": 0,
     "current_ok_selected": 0,
@@ -130,28 +130,28 @@
     "status": "stale"
   },
   "merge": {
-    "cross_source_identities": 360,
-    "duplicates_collapsed": 365,
-    "unique_connection_identities": 3061
+    "cross_source_identities": 369,
+    "duplicates_collapsed": 381,
+    "unique_connection_identities": 2915
   },
   "outputs": {
-    "all_protocols_without_ru": 3196,
+    "all_protocols_without_ru": 3010,
     "history_durable_24h": 50,
     "history_stable": 100,
     "local_verified": 0,
     "ranked_best": 50,
-    "safe_reality_expanded": 616,
-    "safe_reality_tcp_vision": 510
+    "safe_reality_expanded": 605,
+    "safe_reality_tcp_vision": 489
   },
   "ranking": {
     "matched_strict_candidates": {
       "cross_source": 33,
-      "fast": 246,
-      "history_trusted": 509,
-      "radikal_verified": 305,
-      "secure": 305,
-      "top100": 7,
-      "v2go_live": 238
+      "fast": 241,
+      "history_trusted": 464,
+      "radikal_verified": 319,
+      "secure": 319,
+      "top100": 24,
+      "v2go_live": 203
     },
     "weights": {
       "cross_source": 900,
@@ -173,21 +173,21 @@
     "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt",
     "https://raw.githubusercontent.com/Danialsamadi/v2go/main/AllConfigsSub.txt"
   ],
-  "source_configs": 3224,
+  "source_configs": 3047,
   "sources": {
     "fast": {
-      "configs": 1679,
+      "configs": 1677,
       "publishes_nodes": false,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/fast/configs.txt"
     },
     "radikal_verified": {
-      "configs": 2265,
+      "configs": 2306,
       "publishes_nodes": true,
       "upstream_live_tested": true,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt"
     },
     "secure": {
-      "configs": 1203,
+      "configs": 1355,
       "publishes_nodes": false,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/secure/configs.txt"
     },
@@ -197,7 +197,7 @@
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/top100.txt"
     },
     "v2go_live": {
-      "configs": 1324,
+      "configs": 1122,
       "publishes_nodes": true,
       "upstream_live_tested": true,
       "url": "https://raw.githubusercontent.com/Danialsamadi/v2go/main/AllConfigsSub.txt"
