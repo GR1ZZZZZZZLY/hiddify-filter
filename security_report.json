@@ -13,16 +13,16 @@
         "per_user_id": 3
       },
       "selected": 50,
-      "skipped_country_cap": 3,
+      "skipped_country_cap": 1,
       "skipped_endpoint_cap": 5,
       "skipped_network_cap": 0,
-      "skipped_operator_cluster_cap": 5,
+      "skipped_operator_cluster_cap": 4,
       "skipped_reality_key_cap": 16,
       "skipped_user_id_cap": 0
     },
     "durable": {
       "countries": 16,
-      "largest_country_group": 8,
+      "largest_country_group": 9,
       "limits": {
         "nodes": 50,
         "per_country": 12,
@@ -42,7 +42,7 @@
     },
     "stable": {
       "countries": 19,
-      "largest_country_group": 18,
+      "largest_country_group": 16,
       "limits": {
         "nodes": 100,
         "per_country": 30,
@@ -54,10 +54,10 @@
       },
       "selected": 100,
       "skipped_country_cap": 0,
-      "skipped_endpoint_cap": 15,
+      "skipped_endpoint_cap": 14,
       "skipped_network_cap": 0,
       "skipped_operator_cluster_cap": 5,
-      "skipped_reality_key_cap": 33,
+      "skipped_reality_key_cap": 34,
       "skipped_user_id_cap": 0
     }
   },
@@ -81,22 +81,22 @@
   "history": {
     "bootstrap_fill": 0,
     "cross_source_current": 65,
-    "current_fresh": 6,
-    "current_trusted": 451,
-    "durable_candidates": 93,
+    "current_fresh": 0,
+    "current_trusted": 457,
+    "durable_candidates": 94,
     "durable_cross_source_hits_required": 2,
     "durable_required_hits": 72,
     "durable_window_runs": 96,
-    "expired": 27,
+    "expired": 1,
     "history_version": 2,
-    "quarantined": 630,
-    "records": 1104,
-    "revived": 38,
-    "stable_candidates": 367,
+    "quarantined": 629,
+    "records": 1103,
+    "revived": 0,
+    "stable_candidates": 399,
     "stable_required_hits": 6,
-    "stable_selected_pool": 367,
+    "stable_selected_pool": 399,
     "stable_window_runs": 8,
-    "window_complete_current": 357
+    "window_complete_current": 358
   },
   "limitations": [
     "Availability tests and URI validation do not establish operator trust.",
@@ -110,7 +110,7 @@
     "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files."
   ],
   "local": {
-    "age_seconds": 823565,
+    "age_seconds": 824469,
     "candidates": 0,
     "countries": 0,
     "current_ok_selected": 0,
@@ -148,10 +148,10 @@
     "matched_strict_candidates": {
       "cross_source": 65,
       "fast": 229,
-      "history_trusted": 451,
+      "history_trusted": 457,
       "radikal_verified": 311,
-      "secure": 311,
-      "top100": 10,
+      "secure": 304,
+      "top100": 8,
       "v2go_live": 211
     },
     "weights": {
@@ -188,7 +188,7 @@
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt"
     },
     "secure": {
-      "configs": 1267,
+      "configs": 1271,
       "publishes_nodes": false,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/secure/configs.txt"
     },
