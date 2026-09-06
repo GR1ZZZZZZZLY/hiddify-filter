@@ -2,7 +2,7 @@
   "diversity": {
     "best": {
       "countries": 19,
-      "largest_country_group": 6,
+      "largest_country_group": 8,
       "limits": {
         "nodes": 50,
         "per_country": 12,
@@ -21,7 +21,7 @@
       "skipped_user_id_cap": 1
     },
     "durable": {
-      "countries": 19,
+      "countries": 20,
       "largest_country_group": 12,
       "limits": {
         "nodes": 50,
@@ -37,7 +37,7 @@
       "skipped_endpoint_cap": 9,
       "skipped_network_cap": 0,
       "skipped_operator_cluster_cap": 0,
-      "skipped_reality_key_cap": 13,
+      "skipped_reality_key_cap": 14,
       "skipped_user_id_cap": 0
     },
     "stable": {
@@ -54,9 +54,9 @@
       },
       "selected": 100,
       "skipped_country_cap": 0,
-      "skipped_endpoint_cap": 0,
+      "skipped_endpoint_cap": 4,
       "skipped_network_cap": 0,
-      "skipped_operator_cluster_cap": 8,
+      "skipped_operator_cluster_cap": 12,
       "skipped_reality_key_cap": 24,
       "skipped_user_id_cap": 0
     }
@@ -80,22 +80,22 @@
   "history": {
     "bootstrap_fill": 0,
     "cross_source_current": 32,
-    "current_fresh": 17,
-    "current_trusted": 364,
-    "durable_candidates": 79,
+    "current_fresh": 0,
+    "current_trusted": 381,
+    "durable_candidates": 80,
     "durable_cross_source_hits_required": 2,
     "durable_required_hits": 72,
     "durable_window_runs": 96,
-    "expired": 6,
+    "expired": 20,
     "history_version": 2,
-    "quarantined": 654,
-    "records": 1057,
-    "revived": 48,
-    "stable_candidates": 307,
+    "quarantined": 634,
+    "records": 1037,
+    "revived": 0,
+    "stable_candidates": 317,
     "stable_required_hits": 6,
-    "stable_selected_pool": 307,
+    "stable_selected_pool": 317,
     "stable_window_runs": 8,
-    "window_complete_current": 301
+    "window_complete_current": 302
   },
   "limitations": [
     "Availability tests and URI validation do not establish operator trust.",
@@ -109,7 +109,7 @@
     "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files."
   ],
   "local": {
-    "age_seconds": 866893,
+    "age_seconds": 867670,
     "candidates": 0,
     "countries": 0,
     "current_ok_selected": 0,
@@ -146,11 +146,11 @@
   "ranking": {
     "matched_strict_candidates": {
       "cross_source": 32,
-      "fast": 142,
-      "history_trusted": 364,
+      "fast": 135,
+      "history_trusted": 381,
       "radikal_verified": 240,
-      "secure": 240,
-      "top100": 15,
+      "secure": 209,
+      "top100": 8,
       "v2go_live": 173
     },
     "weights": {
@@ -176,7 +176,7 @@
   "source_configs": 1905,
   "sources": {
     "fast": {
-      "configs": 984,
+      "configs": 962,
       "publishes_nodes": false,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/fast/configs.txt"
     },
@@ -187,7 +187,7 @@
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt"
     },
     "secure": {
-      "configs": 920,
+      "configs": 888,
       "publishes_nodes": false,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/secure/configs.txt"
     },
