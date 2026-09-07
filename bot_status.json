@@ -1,6 +1,6 @@
 {
   "filter_version": "6.2",
-  "generated_at_utc": "2026-09-07T20:01:13Z",
+  "generated_at_utc": "2026-09-07T20:21:44Z",
   "health": {
     "critical_reasons": [],
     "reasons": [
@@ -14,13 +14,13 @@
   },
   "history": {
     "current_trusted": 340,
-    "durable_candidates": 75,
-    "stable_candidates": 299,
-    "window_complete_current": 256,
+    "durable_candidates": 77,
+    "stable_candidates": 315,
+    "window_complete_current": 261,
     "window_runs": 96
   },
   "local": {
-    "age_seconds": 982972,
+    "age_seconds": 984203,
     "current_ok_selected": 0,
     "expires_in_seconds": 0,
     "fresh": false,
