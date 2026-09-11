@@ -32,7 +32,7 @@
         "per_reality_key": 4,
         "per_user_id": 4
       },
-      "selected": 31,
+      "selected": 32,
       "skipped_country_cap": 0,
       "skipped_endpoint_cap": 8,
       "skipped_network_cap": 0,
@@ -41,7 +41,7 @@
       "skipped_user_id_cap": 0
     },
     "stable": {
-      "countries": 22,
+      "countries": 21,
       "largest_country_group": 17,
       "limits": {
         "nodes": 100,
@@ -54,8 +54,8 @@
       },
       "selected": 100,
       "skipped_country_cap": 0,
-      "skipped_endpoint_cap": 10,
-      "skipped_network_cap": 3,
+      "skipped_endpoint_cap": 8,
+      "skipped_network_cap": 0,
       "skipped_operator_cluster_cap": 24,
       "skipped_reality_key_cap": 0,
       "skipped_user_id_cap": 0
@@ -80,20 +80,20 @@
   "history": {
     "bootstrap_fill": 0,
     "cross_source_current": 43,
-    "current_fresh": 2,
-    "current_trusted": 247,
-    "durable_candidates": 41,
+    "current_fresh": 0,
+    "current_trusted": 249,
+    "durable_candidates": 42,
     "durable_cross_source_hits_required": 2,
     "durable_required_hits": 72,
     "durable_window_runs": 96,
-    "expired": 0,
+    "expired": 1,
     "history_version": 2,
-    "quarantined": 395,
-    "records": 686,
-    "revived": 10,
-    "stable_candidates": 147,
+    "quarantined": 394,
+    "records": 685,
+    "revived": 0,
+    "stable_candidates": 153,
     "stable_required_hits": 6,
-    "stable_selected_pool": 147,
+    "stable_selected_pool": 153,
     "stable_window_runs": 8,
     "window_complete_current": 144
   },
@@ -109,7 +109,7 @@
     "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files."
   ],
   "local": {
-    "age_seconds": 1341245,
+    "age_seconds": 1341991,
     "candidates": 0,
     "countries": 0,
     "current_ok_selected": 0,
@@ -136,7 +136,7 @@
   },
   "outputs": {
     "all_protocols_without_ru": 1827,
-    "history_durable_24h": 31,
+    "history_durable_24h": 32,
     "history_stable": 100,
     "local_verified": 0,
     "ranked_best": 50,
@@ -147,7 +147,7 @@
     "matched_strict_candidates": {
       "cross_source": 43,
       "fast": 131,
-      "history_trusted": 247,
+      "history_trusted": 249,
       "radikal_verified": 187,
       "secure": 187,
       "top100": 7,
