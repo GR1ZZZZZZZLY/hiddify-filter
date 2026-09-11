@@ -32,7 +32,7 @@
         "per_reality_key": 4,
         "per_user_id": 4
       },
-      "selected": 31,
+      "selected": 32,
       "skipped_country_cap": 0,
       "skipped_endpoint_cap": 7,
       "skipped_network_cap": 1,
@@ -42,7 +42,7 @@
     },
     "stable": {
       "countries": 24,
-      "largest_country_group": 20,
+      "largest_country_group": 21,
       "limits": {
         "nodes": 100,
         "per_country": 30,
@@ -56,7 +56,7 @@
       "skipped_country_cap": 0,
       "skipped_endpoint_cap": 8,
       "skipped_network_cap": 0,
-      "skipped_operator_cluster_cap": 30,
+      "skipped_operator_cluster_cap": 31,
       "skipped_reality_key_cap": 0,
       "skipped_user_id_cap": 0
     }
@@ -80,22 +80,22 @@
   "history": {
     "bootstrap_fill": 0,
     "cross_source_current": 17,
-    "current_fresh": 8,
-    "current_trusted": 195,
-    "durable_candidates": 42,
+    "current_fresh": 0,
+    "current_trusted": 203,
+    "durable_candidates": 43,
     "durable_cross_source_hits_required": 2,
     "durable_required_hits": 72,
     "durable_window_runs": 96,
-    "expired": 1,
+    "expired": 0,
     "history_version": 2,
     "quarantined": 429,
     "records": 672,
-    "revived": 8,
-    "stable_candidates": 153,
+    "revived": 0,
+    "stable_candidates": 157,
     "stable_required_hits": 6,
-    "stable_selected_pool": 153,
+    "stable_selected_pool": 157,
     "stable_window_runs": 8,
-    "window_complete_current": 136
+    "window_complete_current": 138
   },
   "limitations": [
     "Availability tests and URI validation do not establish operator trust.",
@@ -109,7 +109,7 @@
     "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files."
   ],
   "local": {
-    "age_seconds": 1327698,
+    "age_seconds": 1328491,
     "candidates": 0,
     "countries": 0,
     "current_ok_selected": 0,
@@ -136,7 +136,7 @@
   },
   "outputs": {
     "all_protocols_without_ru": 1414,
-    "history_durable_24h": 31,
+    "history_durable_24h": 32,
     "history_stable": 100,
     "local_verified": 0,
     "ranked_best": 50,
@@ -147,7 +147,7 @@
     "matched_strict_candidates": {
       "cross_source": 17,
       "fast": 97,
-      "history_trusted": 195,
+      "history_trusted": 203,
       "radikal_verified": 139,
       "secure": 139,
       "top100": 16,

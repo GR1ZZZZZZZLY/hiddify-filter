@@ -1,6 +1,6 @@
 {
   "filter_version": "6.2",
-  "generated_at_utc": "2026-09-11T19:46:39Z",
+  "generated_at_utc": "2026-09-11T19:59:52Z",
   "health": {
     "critical_reasons": [],
     "reasons": [
@@ -13,14 +13,14 @@
     ]
   },
   "history": {
-    "current_trusted": 195,
-    "durable_candidates": 42,
-    "stable_candidates": 153,
-    "window_complete_current": 136,
+    "current_trusted": 203,
+    "durable_candidates": 43,
+    "stable_candidates": 157,
+    "window_complete_current": 138,
     "window_runs": 96
   },
   "local": {
-    "age_seconds": 1327698,
+    "age_seconds": 1328491,
     "current_ok_selected": 0,
     "expires_in_seconds": 0,
     "fresh": false,
@@ -45,7 +45,7 @@
       "state": "ready"
     },
     "durable": {
-      "count": 31,
+      "count": 32,
       "path": "reality_durable.txt",
       "state": "ready"
     },
