@@ -32,7 +32,7 @@
         "per_reality_key": 4,
         "per_user_id": 4
       },
-      "selected": 40,
+      "selected": 42,
       "skipped_country_cap": 0,
       "skipped_endpoint_cap": 8,
       "skipped_network_cap": 0,
@@ -42,7 +42,7 @@
     },
     "stable": {
       "countries": 20,
-      "largest_country_group": 20,
+      "largest_country_group": 22,
       "limits": {
         "nodes": 100,
         "per_country": 30,
@@ -80,22 +80,22 @@
   "history": {
     "bootstrap_fill": 0,
     "cross_source_current": 43,
-    "current_fresh": 6,
-    "current_trusted": 246,
-    "durable_candidates": 48,
+    "current_fresh": 0,
+    "current_trusted": 252,
+    "durable_candidates": 50,
     "durable_cross_source_hits_required": 2,
     "durable_required_hits": 72,
     "durable_window_runs": 96,
-    "expired": 3,
+    "expired": 1,
     "history_version": 2,
-    "quarantined": 410,
-    "records": 683,
-    "revived": 24,
-    "stable_candidates": 184,
+    "quarantined": 409,
+    "records": 682,
+    "revived": 0,
+    "stable_candidates": 186,
     "stable_required_hits": 6,
-    "stable_selected_pool": 184,
+    "stable_selected_pool": 186,
     "stable_window_runs": 8,
-    "window_complete_current": 148
+    "window_complete_current": 149
   },
   "limitations": [
     "Availability tests and URI validation do not establish operator trust.",
@@ -109,7 +109,7 @@
     "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files."
   ],
   "local": {
-    "age_seconds": 1421352,
+    "age_seconds": 1422101,
     "candidates": 0,
     "countries": 0,
     "current_ok_selected": 0,
@@ -136,7 +136,7 @@
   },
   "outputs": {
     "all_protocols_without_ru": 1631,
-    "history_durable_24h": 40,
+    "history_durable_24h": 42,
     "history_stable": 100,
     "local_verified": 0,
     "ranked_best": 50,
@@ -147,9 +147,9 @@
     "matched_strict_candidates": {
       "cross_source": 43,
       "fast": 126,
-      "history_trusted": 246,
+      "history_trusted": 252,
       "radikal_verified": 187,
-      "secure": 146,
+      "secure": 187,
       "top100": 11,
       "v2go_live": 108
     },
@@ -187,7 +187,7 @@
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt"
     },
     "secure": {
-      "configs": 792,
+      "configs": 823,
       "publishes_nodes": false,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/secure/configs.txt"
     },
