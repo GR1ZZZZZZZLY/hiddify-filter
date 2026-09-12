@@ -13,15 +13,15 @@
         "per_user_id": 3
       },
       "selected": 50,
-      "skipped_country_cap": 1,
-      "skipped_endpoint_cap": 9,
+      "skipped_country_cap": 0,
+      "skipped_endpoint_cap": 10,
       "skipped_network_cap": 0,
-      "skipped_operator_cluster_cap": 19,
+      "skipped_operator_cluster_cap": 22,
       "skipped_reality_key_cap": 0,
       "skipped_user_id_cap": 0
     },
     "durable": {
-      "countries": 15,
+      "countries": 16,
       "largest_country_group": 9,
       "limits": {
         "nodes": 50,
@@ -32,7 +32,7 @@
         "per_reality_key": 4,
         "per_user_id": 4
       },
-      "selected": 38,
+      "selected": 39,
       "skipped_country_cap": 0,
       "skipped_endpoint_cap": 9,
       "skipped_network_cap": 0,
@@ -42,7 +42,7 @@
     },
     "stable": {
       "countries": 21,
-      "largest_country_group": 22,
+      "largest_country_group": 21,
       "limits": {
         "nodes": 100,
         "per_country": 30,
@@ -56,47 +56,47 @@
       "skipped_country_cap": 0,
       "skipped_endpoint_cap": 11,
       "skipped_network_cap": 0,
-      "skipped_operator_cluster_cap": 26,
+      "skipped_operator_cluster_cap": 27,
       "skipped_reality_key_cap": 0,
       "skipped_user_id_cap": 0
     }
   },
   "filtering": {
     "duplicates": 0,
-    "reality_candidates": 711,
+    "reality_candidates": 685,
     "reality_rejected": {
-      "invalid_encryption": 311,
+      "invalid_encryption": 297,
       "invalid_uuid": 1,
-      "missing_or_invalid_fingerprint": 94,
-      "missing_or_invalid_server_name": 6,
+      "missing_or_invalid_fingerprint": 96,
+      "missing_or_invalid_server_name": 4,
       "unsafe_option": 13,
-      "unsupported_transport": 5
+      "unsupported_transport": 4
     },
     "ru_label": 19,
     "safe_reality_excluded_from_tcp_vision": {
-      "unsupported_transport": 50,
-      "vision_required": 23
+      "unsupported_transport": 37,
+      "vision_required": 26
     }
   },
   "history": {
     "bootstrap_fill": 0,
     "cross_source_current": 31,
-    "current_fresh": 2,
+    "current_fresh": 1,
     "current_trusted": 206,
-    "durable_candidates": 50,
+    "durable_candidates": 51,
     "durable_cross_source_hits_required": 2,
     "durable_required_hits": 72,
     "durable_window_runs": 96,
-    "expired": 2,
+    "expired": 4,
     "history_version": 2,
-    "quarantined": 416,
-    "records": 650,
-    "revived": 2,
-    "stable_candidates": 189,
+    "quarantined": 413,
+    "records": 646,
+    "revived": 10,
+    "stable_candidates": 187,
     "stable_required_hits": 6,
-    "stable_selected_pool": 189,
+    "stable_selected_pool": 187,
     "stable_window_runs": 8,
-    "window_complete_current": 135
+    "window_complete_current": 133
   },
   "limitations": [
     "Availability tests and URI validation do not establish operator trust.",
@@ -110,7 +110,7 @@
     "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files."
   ],
   "local": {
-    "age_seconds": 1400572,
+    "age_seconds": 1401754,
     "candidates": 0,
     "countries": 0,
     "current_ok_selected": 0,
@@ -131,26 +131,26 @@
     "status": "stale"
   },
   "merge": {
-    "cross_source_identities": 277,
-    "duplicates_collapsed": 277,
-    "unique_connection_identities": 1456
+    "cross_source_identities": 265,
+    "duplicates_collapsed": 265,
+    "unique_connection_identities": 1351
   },
   "outputs": {
-    "all_protocols_without_ru": 1575,
-    "history_durable_24h": 38,
+    "all_protocols_without_ru": 1478,
+    "history_durable_24h": 39,
     "history_stable": 100,
     "local_verified": 0,
     "ranked_best": 50,
-    "safe_reality_expanded": 281,
-    "safe_reality_tcp_vision": 208
+    "safe_reality_expanded": 270,
+    "safe_reality_tcp_vision": 207
   },
   "ranking": {
     "matched_strict_candidates": {
       "cross_source": 31,
       "fast": 96,
       "history_trusted": 206,
-      "radikal_verified": 165,
-      "secure": 165,
+      "radikal_verified": 164,
+      "secure": 164,
       "top100": 10,
       "v2go_live": 74
     },
@@ -174,21 +174,21 @@
     "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt",
     "https://raw.githubusercontent.com/Danialsamadi/v2go/main/AllConfigsSub.txt"
   ],
-  "source_configs": 1594,
+  "source_configs": 1497,
   "sources": {
     "fast": {
-      "configs": 819,
+      "configs": 738,
       "publishes_nodes": false,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/fast/configs.txt"
     },
     "radikal_verified": {
-      "configs": 1226,
+      "configs": 1117,
       "publishes_nodes": true,
       "upstream_live_tested": true,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt"
     },
     "secure": {
-      "configs": 769,
+      "configs": 733,
       "publishes_nodes": false,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/secure/configs.txt"
     },
