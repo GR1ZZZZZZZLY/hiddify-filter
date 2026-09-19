@@ -3,8 +3,8 @@
 #ping-type: proxy
 #check-url-via-proxy: https://cp.cloudflare.com/generate_204
 vless://7ab29f89-6eef-4171-b232-fc4f580ad31b@172.235.43.210:53957?security=reality&type=tcp&sni=www.nvidia.com&fp=chrome&flow=xtls-rprx-vision&sid=44e82fd7b97b14&pbk=XUHlbk5VH5z4E2wxZBhlpLZ33qevyQgqU7dheRDgoGQ&encryption=none#US 🇺🇸 | @Raydikalx | 68A073
-vless://0817a3bb-c8fb-4ddf-a05e-321565b39cd8@31.58.50.200:8443?security=reality&type=raw&packetEncoding=xudp&sni=tradingview.com&fp=firefox&flow=xtls-rprx-vision&pbk=mr5AF0LFyDzYDRoYAwH6QNcHXL77-LoiwRx50ZzU8QU&encryption=none#US 🇺🇸 | @Raydikalx | 258AB3
 vless://56a1b253-cde4-490f-9c5e-09a523882bdd@172.233.139.46:53734?security=reality&encryption=none&pbk=JAG5rl6KEt7KAV0y8Z2x6orWHymCXRSX49SkEnEftWU&headerType=&fp=firefox&type=tcp&flow=xtls-rprx-vision&sni=www.tesla.com&sid=a56d7d8da977f860#US 🇺🇸 | @Raydikalx | 724CA9
+vless://0817a3bb-c8fb-4ddf-a05e-321565b39cd8@31.58.50.200:8443?security=reality&type=raw&packetEncoding=xudp&sni=tradingview.com&fp=firefox&flow=xtls-rprx-vision&pbk=mr5AF0LFyDzYDRoYAwH6QNcHXL77-LoiwRx50ZzU8QU&encryption=none#US 🇺🇸 | @Raydikalx | 258AB3
 vless://975fc322-6e38-434b-a53c-d39fed49b9a9@47.251.108.158:443?security=reality&type=tcp&sni=www.cloudflare.com&fp=chrome&flow=xtls-rprx-vision&sid=896f52ba2cfca903&pbk=SmgYcFIvvFXW3xh4gvGhIJuQsaZvWkAylcjB6TEddEs&encryption=none#US 🇺🇸 | @Raydikalx | B5554D
 vless://36e89875-9c53-482b-bc41-d3890e9da176@51.161.204.244:443?encryption=none&flow=xtls-rprx-vision&fp=firefox&pbk=gCAazs5uxNuMZIxfDdw8wPE0nwKY4QfBfBkQveKAkEk&security=reality&sid=0ad08b47f498efd2&sni=www.cloudflare.com&type=tcp#AU 🇦🇺 | @Raydikalx | 2B377C
 vless://ca52e2b6-fb9f-4dac-b6dc-49da9923f251@209.200.246.148:443/?type=tcp&encryption=none&flow=xtls-rprx-vision&sni=www.cloudflare.com&fp=firefox&security=reality&pbk=uTmb-ytXsx8p0fkBz7A76SHpWk7_oVutIA4LGTE8BQk&sid=f98843107912e782#CA 🇨🇦 | @Raydikalx | 31AC44
