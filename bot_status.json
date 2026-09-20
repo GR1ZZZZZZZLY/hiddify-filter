@@ -1,6 +1,6 @@
 {
   "filter_version": "6.2",
-  "generated_at_utc": "2026-09-20T12:49:11Z",
+  "generated_at_utc": "2026-09-20T13:02:25Z",
   "health": {
     "critical_reasons": [],
     "reasons": [
@@ -13,14 +13,14 @@
     ]
   },
   "history": {
-    "current_trusted": 300,
-    "durable_candidates": 84,
-    "stable_candidates": 261,
-    "window_complete_current": 215,
+    "current_trusted": 290,
+    "durable_candidates": 82,
+    "stable_candidates": 264,
+    "window_complete_current": 207,
     "window_runs": 96
   },
   "local": {
-    "age_seconds": 2080250,
+    "age_seconds": 2081044,
     "current_ok_selected": 0,
     "expires_in_seconds": 0,
     "fresh": false,
@@ -50,7 +50,7 @@
       "state": "ready"
     },
     "expanded": {
-      "count": 414,
+      "count": 397,
       "path": "reality_all.txt",
       "state": "ready"
     },
@@ -60,7 +60,7 @@
       "state": "stale"
     },
     "reserve": {
-      "count": 2033,
+      "count": 1932,
       "path": "subscription.txt",
       "state": "ready"
     },
@@ -70,7 +70,7 @@
       "state": "ready"
     },
     "strict": {
-      "count": 307,
+      "count": 291,
       "path": "reality_tcp.txt",
       "state": "ready"
     }
@@ -79,17 +79,17 @@
   "service": "hiddify-filter",
   "sources": {
     "fast": {
-      "configs": 1035,
+      "configs": 982,
       "publishes_nodes": false,
       "state": "ok"
     },
     "radikal_verified": {
-      "configs": 1460,
+      "configs": 1346,
       "publishes_nodes": true,
       "state": "ok"
     },
     "secure": {
-      "configs": 961,
+      "configs": 860,
       "publishes_nodes": false,
       "state": "ok"
     },
