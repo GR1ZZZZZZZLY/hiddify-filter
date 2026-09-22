@@ -13,10 +13,10 @@
         "per_user_id": 3
       },
       "selected": 50,
-      "skipped_country_cap": 2,
-      "skipped_endpoint_cap": 9,
+      "skipped_country_cap": 3,
+      "skipped_endpoint_cap": 10,
       "skipped_network_cap": 0,
-      "skipped_operator_cluster_cap": 13,
+      "skipped_operator_cluster_cap": 17,
       "skipped_reality_key_cap": 0,
       "skipped_user_id_cap": 0
     },
@@ -33,7 +33,7 @@
         "per_user_id": 4
       },
       "selected": 50,
-      "skipped_country_cap": 5,
+      "skipped_country_cap": 4,
       "skipped_endpoint_cap": 14,
       "skipped_network_cap": 7,
       "skipped_operator_cluster_cap": 1,
@@ -53,7 +53,7 @@
         "per_user_id": 6
       },
       "selected": 100,
-      "skipped_country_cap": 4,
+      "skipped_country_cap": 5,
       "skipped_endpoint_cap": 15,
       "skipped_network_cap": 5,
       "skipped_operator_cluster_cap": 20,
@@ -80,20 +80,20 @@
   "history": {
     "bootstrap_fill": 0,
     "cross_source_current": 56,
-    "current_fresh": 3,
-    "current_trusted": 325,
+    "current_fresh": 0,
+    "current_trusted": 328,
     "durable_candidates": 86,
     "durable_cross_source_hits_required": 2,
     "durable_required_hits": 72,
     "durable_window_runs": 96,
-    "expired": 2,
+    "expired": 3,
     "history_version": 2,
-    "quarantined": 445,
-    "records": 799,
-    "revived": 7,
-    "stable_candidates": 256,
+    "quarantined": 442,
+    "records": 796,
+    "revived": 0,
+    "stable_candidates": 271,
     "stable_required_hits": 6,
-    "stable_selected_pool": 256,
+    "stable_selected_pool": 271,
     "stable_window_runs": 8,
     "window_complete_current": 221
   },
@@ -109,7 +109,7 @@
     "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files."
   ],
   "local": {
-    "age_seconds": 2238627,
+    "age_seconds": 2239417,
     "candidates": 0,
     "countries": 0,
     "current_ok_selected": 0,
@@ -147,10 +147,10 @@
     "matched_strict_candidates": {
       "cross_source": 56,
       "fast": 169,
-      "history_trusted": 325,
+      "history_trusted": 328,
       "radikal_verified": 256,
       "secure": 256,
-      "top100": 24,
+      "top100": 29,
       "v2go_live": 128
     },
     "weights": {
