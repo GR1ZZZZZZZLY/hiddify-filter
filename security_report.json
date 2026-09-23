@@ -1,7 +1,7 @@
 {
   "diversity": {
     "best": {
-      "countries": 16,
+      "countries": 17,
       "largest_country_group": 12,
       "limits": {
         "nodes": 50,
@@ -13,10 +13,10 @@
         "per_user_id": 3
       },
       "selected": 50,
-      "skipped_country_cap": 22,
-      "skipped_endpoint_cap": 11,
+      "skipped_country_cap": 2,
+      "skipped_endpoint_cap": 10,
       "skipped_network_cap": 0,
-      "skipped_operator_cluster_cap": 2,
+      "skipped_operator_cluster_cap": 0,
       "skipped_reality_key_cap": 0,
       "skipped_user_id_cap": 0
     },
@@ -41,8 +41,8 @@
       "skipped_user_id_cap": 0
     },
     "stable": {
-      "countries": 26,
-      "largest_country_group": 29,
+      "countries": 27,
+      "largest_country_group": 28,
       "limits": {
         "nodes": 100,
         "per_country": 30,
@@ -63,39 +63,39 @@
   },
   "filtering": {
     "duplicates": 0,
-    "reality_candidates": 751,
+    "reality_candidates": 782,
     "reality_rejected": {
-      "invalid_encryption": 299,
+      "invalid_encryption": 308,
       "missing_or_invalid_fingerprint": 50,
-      "missing_or_invalid_server_name": 2,
+      "missing_or_invalid_server_name": 3,
       "unsafe_option": 11,
       "unsupported_transport": 2
     },
-    "ru_label": 26,
+    "ru_label": 28,
     "safe_reality_excluded_from_tcp_vision": {
-      "unsupported_transport": 64,
+      "unsupported_transport": 71,
       "vision_required": 33
     }
   },
   "history": {
     "bootstrap_fill": 0,
-    "cross_source_current": 58,
-    "current_fresh": 0,
-    "current_trusted": 290,
-    "durable_candidates": 88,
+    "cross_source_current": 60,
+    "current_fresh": 2,
+    "current_trusted": 302,
+    "durable_candidates": 90,
     "durable_cross_source_hits_required": 2,
     "durable_required_hits": 72,
     "durable_window_runs": 96,
-    "expired": 0,
+    "expired": 29,
     "history_version": 2,
-    "quarantined": 433,
-    "records": 743,
-    "revived": 11,
-    "stable_candidates": 258,
+    "quarantined": 392,
+    "records": 716,
+    "revived": 21,
+    "stable_candidates": 264,
     "stable_required_hits": 6,
-    "stable_selected_pool": 258,
+    "stable_selected_pool": 264,
     "stable_window_runs": 8,
-    "window_complete_current": 210
+    "window_complete_current": 212
   },
   "limitations": [
     "Availability tests and URI validation do not establish operator trust.",
@@ -109,7 +109,7 @@
     "Local report identifiers are HMAC-SHA256 tags; the HMAC secret is never written to generated files."
   ],
   "local": {
-    "age_seconds": 2317979,
+    "age_seconds": 2318987,
     "candidates": 0,
     "countries": 0,
     "current_ok_selected": 0,
@@ -130,28 +130,28 @@
     "status": "stale"
   },
   "merge": {
-    "cross_source_identities": 360,
-    "duplicates_collapsed": 363,
-    "unique_connection_identities": 2369
+    "cross_source_identities": 339,
+    "duplicates_collapsed": 342,
+    "unique_connection_identities": 2328
   },
   "outputs": {
-    "all_protocols_without_ru": 2585,
+    "all_protocols_without_ru": 2543,
     "history_durable_24h": 50,
     "history_stable": 100,
     "local_verified": 0,
     "ranked_best": 50,
-    "safe_reality_expanded": 387,
-    "safe_reality_tcp_vision": 290
+    "safe_reality_expanded": 408,
+    "safe_reality_tcp_vision": 304
   },
   "ranking": {
     "matched_strict_candidates": {
-      "cross_source": 58,
-      "fast": 139,
-      "history_trusted": 290,
-      "radikal_verified": 219,
-      "secure": 219,
-      "top100": 13,
-      "v2go_live": 129
+      "cross_source": 60,
+      "fast": 153,
+      "history_trusted": 302,
+      "radikal_verified": 234,
+      "secure": 234,
+      "top100": 6,
+      "v2go_live": 130
     },
     "weights": {
       "cross_source": 900,
@@ -173,21 +173,21 @@
     "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt",
     "https://raw.githubusercontent.com/Danialsamadi/v2go/main/AllConfigsSub.txt"
   ],
-  "source_configs": 2611,
+  "source_configs": 2571,
   "sources": {
     "fast": {
-      "configs": 1176,
+      "configs": 1146,
       "publishes_nodes": false,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/fast/configs.txt"
     },
     "radikal_verified": {
-      "configs": 1876,
+      "configs": 1815,
       "publishes_nodes": true,
       "upstream_live_tested": true,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs.txt"
     },
     "secure": {
-      "configs": 1229,
+      "configs": 1116,
       "publishes_nodes": false,
       "url": "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/secure/configs.txt"
     },
