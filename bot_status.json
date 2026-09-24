@@ -1,6 +1,6 @@
 {
   "filter_version": "6.2",
-  "generated_at_utc": "2026-09-24T09:48:39Z",
+  "generated_at_utc": "2026-09-24T10:01:52Z",
   "health": {
     "critical_reasons": [],
     "reasons": [
@@ -13,14 +13,14 @@
     ]
   },
   "history": {
-    "current_trusted": 286,
-    "durable_candidates": 87,
-    "stable_candidates": 207,
-    "window_complete_current": 198,
+    "current_trusted": 277,
+    "durable_candidates": 84,
+    "stable_candidates": 232,
+    "window_complete_current": 193,
     "window_runs": 96
   },
   "local": {
-    "age_seconds": 2415018,
+    "age_seconds": 2415811,
     "current_ok_selected": 0,
     "expires_in_seconds": 0,
     "fresh": false,
@@ -50,7 +50,7 @@
       "state": "ready"
     },
     "expanded": {
-      "count": 364,
+      "count": 355,
       "path": "reality_all.txt",
       "state": "ready"
     },
@@ -60,7 +60,7 @@
       "state": "stale"
     },
     "reserve": {
-      "count": 2116,
+      "count": 1990,
       "path": "subscription.txt",
       "state": "ready"
     },
@@ -70,7 +70,7 @@
       "state": "ready"
     },
     "strict": {
-      "count": 293,
+      "count": 280,
       "path": "reality_tcp.txt",
       "state": "ready"
     }
@@ -84,7 +84,7 @@
       "state": "ok"
     },
     "radikal_verified": {
-      "configs": 1571,
+      "configs": 1420,
       "publishes_nodes": true,
       "state": "ok"
     },
