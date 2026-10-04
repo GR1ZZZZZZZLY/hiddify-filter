@@ -1,6 +1,6 @@
 {
   "filter_version": "6.2",
-  "generated_at_utc": "2026-10-04T15:53:47Z",
+  "generated_at_utc": "2026-10-04T19:33:32Z",
   "health": {
     "critical_reasons": [],
     "reasons": [
@@ -13,14 +13,14 @@
     ]
   },
   "history": {
-    "current_trusted": 197,
-    "durable_candidates": 26,
-    "stable_candidates": 91,
-    "window_complete_current": 73,
+    "current_trusted": 163,
+    "durable_candidates": 20,
+    "stable_candidates": 81,
+    "window_complete_current": 63,
     "window_runs": 96
   },
   "local": {
-    "age_seconds": 3300926,
+    "age_seconds": 3314111,
     "current_ok_selected": 0,
     "expires_in_seconds": 0,
     "fresh": false,
@@ -45,12 +45,12 @@
       "state": "ready"
     },
     "durable": {
-      "count": 25,
+      "count": 20,
       "path": "reality_durable.txt",
       "state": "ready"
     },
     "expanded": {
-      "count": 299,
+      "count": 260,
       "path": "reality_all.txt",
       "state": "ready"
     },
@@ -60,17 +60,17 @@
       "state": "stale"
     },
     "reserve": {
-      "count": 1455,
+      "count": 1343,
       "path": "subscription.txt",
       "state": "ready"
     },
     "stable": {
-      "count": 84,
+      "count": 75,
       "path": "reality_stable.txt",
       "state": "ready"
     },
     "strict": {
-      "count": 226,
+      "count": 185,
       "path": "reality_tcp.txt",
       "state": "ready"
     }
@@ -79,17 +79,17 @@
   "service": "hiddify-filter",
   "sources": {
     "fast": {
-      "configs": 835,
+      "configs": 814,
       "publishes_nodes": false,
       "state": "ok"
     },
     "radikal_verified": {
-      "configs": 1133,
+      "configs": 1061,
       "publishes_nodes": true,
       "state": "ok"
     },
     "secure": {
-      "configs": 617,
+      "configs": 550,
       "publishes_nodes": false,
       "state": "ok"
     },
@@ -99,7 +99,7 @@
       "state": "ok"
     },
     "v2go_live": {
-      "configs": 641,
+      "configs": 592,
       "publishes_nodes": true,
       "state": "ok"
     }
